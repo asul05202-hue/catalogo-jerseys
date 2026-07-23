@@ -891,6 +891,10 @@ function saveCategories(cats) {
 let _loginIsNew = false; // true = primer registro
 
 
+function checkPhoneExists() {
+  // no-op — login simplificado, no necesita esta función
+}
+
 function doLogin() {
   var phone = document.getElementById('login-phone').value.trim().replace(/\D/g,'');
   var pass  = document.getElementById('login-pass').value.trim();
