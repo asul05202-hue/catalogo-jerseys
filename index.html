@@ -1869,7 +1869,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Solo re-renderizar si productos ya estan cargados
         if(state.products && state.products.length > 0){
           if(typeof renderSidebar==='function') renderSidebar();
-          if(typeof renderProducts==='function') renderProducts();
+          if(typeof applyFilters==='function') applyFilters();
+          else if(typeof renderProducts==='function') renderProducts();
           if(typeof updateCartBadge==='function') updateCartBadge();
         } else {
           // Cargar productos desde cero
