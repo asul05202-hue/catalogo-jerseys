@@ -454,7 +454,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="login-brand">Jersey Store</div>
     <div class="login-sub" id="login-subtitle">Catálogo exclusivo de jerseys</div>
 
-    <form id="login-form" onsubmit="doLogin();return false;" autocomplete="off">
+    <form id="login-form" onsubmit="try{doLogin();}catch(e){document.getElementById('login-error').textContent=e.message;}return false;" autocomplete="off">
       <div class="form-group">
         <label for="login-phone">Número de teléfono</label>
         <input type="tel" id="login-phone" placeholder="Ej: 3343745531" autocomplete="tel"/>
@@ -1818,6 +1818,21 @@ function deleteAllReviews() {
 }
 
 initApp();
+
+document.addEventListener('DOMContentLoaded', function() {
+  var loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      try { doLogin(); } catch(err) {
+        var el = document.getElementById('login-error');
+        if(el) el.textContent = err.message;
+      }
+      return false;
+    }, true);
+  }
+});
 </script>
 </body>
 </html>
