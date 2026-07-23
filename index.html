@@ -1844,54 +1844,65 @@ document.addEventListener('DOMContentLoaded', function() {
   function _saveU(u){ try{ localStorage.setItem('jersey_users', JSON.stringify(u)); }catch(e){} }
     function _finish(user){
     try {
+      // Guardar usuario
       localStorage.setItem('jersey_last_phone', user.phone);
+      // Ocultar login, mostrar app
       var ls = document.getElementById('login-screen');
       var app = document.getElementById('app');
       if(ls){ ls.style.display='none'; ls.classList.add('hidden'); }
-      if(app){ app.style.display='block'; app.classList.add('visible'); }
-      var ini = user.name.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2)||'U';
+      if(app){ app.style.display='block'; app.classList.remove('hidden'); app.classList.add('visible'); }
+      // Avatar
+      var words = user.name.split(' ');
+      var ini = (words[0][0]||('')).toUpperCase() + ((words[1]||'')[0]||'').toUpperCase();
       var av = document.getElementById('user-avatar');
       var nd = document.getElementById('user-name-display');
-      if(av) av.textContent = ini;
-      if(nd) nd.textContent = user.name.split(' ')[0];
+      if(av) av.textContent = ini || 'U';
+      if(nd) nd.textContent = words[0];
+      // Admin
       var isAdmin = (user.phone === AP);
       var adminBtn = document.getElementById('admin-btn');
       if(adminBtn) adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
-      try{ if(isAdmin) _adminUnlocked = true; }catch(e){}
-      try{
-        if(typeof state !== 'undefined'){
-          state.currentUser = user;
-          if(!state.products || state.products.length===0){
-            state.products = (typeof loadProducts==='function') ? loadProducts() : (typeof CATALOG_SEED!=='undefined' ? CATALOG_SEED.slice() : []);
-            state.categories = (typeof loadCategories==='function') ? loadCategories(state.products) : [];
-            state.filtered = state.products.slice();
-            state.currentPage = 1;
-          }
-        }
-        if(typeof renderSidebar==='function') renderSidebar();
-        if(typeof applyFilters==='function') applyFilters();
-        else if(typeof renderProducts==='function') renderProducts();
-        if(typeof updateCartBadge==='function') updateCartBadge();
-      } catch(ex){
-        console.warn('render via state fallo, usando fallback:', ex.message);
-        var grid = document.getElementById('products-grid');
-        if(grid && typeof CATALOG_SEED !== 'undefined'){
-          var frag = '';
-          var seed = CATALOG_SEED;
-          for(var i=0;i<Math.min(48,seed.length);i++){
-            var p=seed[i];
-            frag += '<div class="product-card" style="cursor:pointer" onclick="openProduct('+p.id+')">'+
-              '<div class="product-img-wrap"><img src="'+p.image+'" alt="" loading="lazy" style="width:100%;height:200px;object-fit:cover"></div>'+
-              '<div class="product-info"><h3 class="product-name" style="font-size:13px;padding:8px">'+p.name+'</h3>'+
-              '<div class="product-category" style="font-size:11px;padding:0 8px 8px;color:#888">'+p.category+'</div></div></div>';
-          }
-          grid.innerHTML = frag || '<p style="padding:20px">No hay productos</p>';
+      // State
+      if(typeof state !== 'undefined'){
+        state.currentUser = user;
+        if(isAdmin){ try{ _adminUnlocked = true; }catch(e){} }
+        // Solo re-renderizar si productos ya estan cargados
+        if(state.products && state.products.length > 0){
+          if(typeof renderSidebar==='function') renderSidebar();
+          if(typeof renderProducts==='function') renderProducts();
+          if(typeof updateCartBadge==='function') updateCartBadge();
+        } else {
+          // Cargar productos desde cero
+          if(typeof loadProducts==='function') state.products = loadProducts();
+          else state.products = (typeof CATALOG_SEED!=='undefined') ? CATALOG_SEED.slice() : [];
+          if(typeof loadCategories==='function') state.categories = loadCategories(state.products);
+          state.filtered = state.products.slice();
+          state.currentPage = 1;
+          if(typeof renderSidebar==='function') renderSidebar();
+          if(typeof applyFilters==='function') applyFilters();
+          else if(typeof renderProducts==='function') renderProducts();
+          if(typeof updateCartBadge==='function') updateCartBadge();
         }
       }
     } catch(e) {
       console.error('_finish error:', e);
-      var errEl = document.getElementById('login-error');
-      if(errEl) errEl.textContent = 'Error al cargar: '+e.message;
+      // FALLBACK EXTREMO: render manual desde CATALOG_SEED
+      try {
+        var app2 = document.getElementById('app');
+        var grid = document.getElementById('products-grid');
+        if(app2){ app2.style.display='block'; }
+        if(grid && typeof CATALOG_SEED!=='undefined' && grid.children.length === 0){
+          var frag = '';
+          for(var i=0; i<Math.min(48, CATALOG_SEED.length); i++){
+            var p = CATALOG_SEED[i];
+            frag += '<div class="product-card" onclick="openProduct('+p.id+')">'+
+              '<div class="product-img-wrap"><img src="'+p.image+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">'+
+              '</div><div class="product-info"><div class="product-name" style="font-weight:600;padding:8px 12px">'+p.name+'</div>'+
+              '<div style="padding:0 12px 8px;color:#888;font-size:12px">'+p.category+'</div></div></div>';
+          }
+          grid.innerHTML = frag;
+        }
+      } catch(e2){ console.error('fallback error:', e2); }
     }
   }
 
