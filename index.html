@@ -891,39 +891,51 @@ function checkPhoneExists() { /* noop */ }
 
 function doLogin() {
   var phone = document.getElementById('login-phone').value.trim().replace(/[^0-9]/g,'');
-  var pass  = document.getElementById('login-pass').value.trim();
+  var pass  = document.getElementById('login-pass').value;
+  var passT = pass.trim();
   var errEl = document.getElementById('login-error');
   if (errEl) errEl.textContent = '';
 
   if (!phone || phone.length < 7) { if(errEl) errEl.textContent='Ingresa tu teléfono.'; return; }
-  if (!pass  || pass.length  < 3) { if(errEl) errEl.textContent='Ingresa tu contraseña.'; return; }
+  if (!passT || passT.length < 3) { if(errEl) errEl.textContent='Ingresa tu contraseña.'; return; }
 
-  var users = loadUsers();
-
+  // ── ADMIN: verificación directa, sin depender de localStorage ──
   if (phone === ADMIN_PHONE) {
-    if (pass !== ADMIN_PASS) { if(errEl) errEl.textContent='Contraseña incorrecta.'; return; }
-    var adm = users.find(function(u){ return u.phone === phone; });
-    if (!adm) {
-      adm = {id:Date.now(),name:ADMIN_NAME,phone:phone,passHash:btoa(pass),datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
-      users.unshift(adm);
-    } else { adm.lastLogin=new Date().toISOString(); adm.logins=(adm.logins||0)+1; }
+    var passOk = (passT === ADMIN_PASS) || (pass === ADMIN_PASS) ||
+                 (passT.toLowerCase() === ADMIN_PASS.toLowerCase());
+    if (!passOk) {
+      if(errEl) errEl.textContent = 'Contraseña incorrecta.';
+      return;
+    }
+    // Forzar registro limpio del admin
+    var users = loadUsers().filter(function(u){ return u.phone !== ADMIN_PHONE; });
+    var adm = {id:1, name:ADMIN_NAME, phone:ADMIN_PHONE, passHash:btoa(ADMIN_PASS),
+               datetime:new Date().toISOString(), lastLogin:new Date().toISOString(), logins:1};
+    users.unshift(adm);
     saveUsers(users);
     finishLogin(adm);
     return;
   }
 
+  // ── USUARIO NORMAL ──
+  var users = loadUsers();
   var existing = users.find(function(u){ return u.phone === phone; });
   if (existing) {
-    if (existing.passHash && existing.passHash !== btoa(pass)) { if(errEl) errEl.textContent='Contraseña incorrecta.'; return; }
-    existing.lastLogin=new Date().toISOString(); existing.logins=(existing.logins||0)+1;
+    if (existing.passHash && existing.passHash !== btoa(passT) && existing.passHash !== btoa(pass)) {
+      if(errEl) errEl.textContent = 'Contraseña incorrecta.';
+      return;
+    }
+    existing.lastLogin = new Date().toISOString();
+    existing.logins = (existing.logins || 0) + 1;
     saveUsers(users);
     finishLogin(existing);
     return;
   }
 
-  var name = document.getElementById('login-name').value.trim();
-  if (!name) name = 'Cliente ' + phone.slice(-4);
-  var newUser = {id:Date.now(),name:name,phone:phone,passHash:btoa(pass),datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
+  // ── USUARIO NUEVO ──
+  var name = 'Cliente ' + phone.slice(-4);
+  var newUser = {id:Date.now(), name:name, phone:phone, passHash:btoa(passT),
+                 datetime:new Date().toISOString(), lastLogin:new Date().toISOString(), logins:1};
   users.push(newUser);
   saveUsers(users);
   finishLogin(newUser);
