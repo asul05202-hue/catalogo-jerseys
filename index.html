@@ -463,12 +463,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <label for="login-pass">Contraseña</label>
         <input type="password" id="login-pass" placeholder="Tu contraseña" autocomplete="current-password"/>
       </div>
-      <div id="fg-name" style="display:none">
-        <input type="text" id="login-name" value=""/>
-      </div>
-      <div id="fg-pass2" style="display:none">
-        <input type="password" id="login-pass2"/>
-      </div>
+      <div id="fg-name" style="display:none"><input type="text" id="login-name" value=""/></div>
+      <div id="fg-pass2" style="display:none"><input type="password" id="login-pass2"/></div>
       <div id="login-error" style="color:#e74c3c;font-size:14px;margin-bottom:8px;min-height:20px;"></div>
       <div id="login-note" style="font-size:13px;color:#888;margin-bottom:12px;">Ingresa tus datos para continuar</div>
       <button type="submit" id="login-btn-main" class="btn-primary" style="width:100%">Entrar al catálogo →</button>
@@ -890,65 +886,44 @@ function saveCategories(cats) {
 // ═══════════════════════════════════════════════════════
 let _loginIsNew = false; // true = primer registro
 
+function checkPhoneExists() { /* noop */ }
 
-function checkPhoneExists() {
-  // no-op — login simplificado, no necesita esta función
-}
 
 function doLogin() {
-  var phone = document.getElementById('login-phone').value.trim().replace(/\D/g,'');
+  var phone = document.getElementById('login-phone').value.trim().replace(/[^0-9]/g,'');
   var pass  = document.getElementById('login-pass').value.trim();
   var errEl = document.getElementById('login-error');
-  errEl.textContent = '';
+  if (errEl) errEl.textContent = '';
 
-  if (!phone || phone.length < 7) {
-    errEl.textContent = 'Ingresa tu número de teléfono.';
-    return;
-  }
-  if (!pass || pass.length < 3) {
-    errEl.textContent = 'Ingresa tu contraseña.';
-    return;
-  }
+  if (!phone || phone.length < 7) { if(errEl) errEl.textContent='Ingresa tu teléfono.'; return; }
+  if (!pass  || pass.length  < 3) { if(errEl) errEl.textContent='Ingresa tu contraseña.'; return; }
 
-  // ── ADMIN ──
+  var users = loadUsers();
+
   if (phone === ADMIN_PHONE) {
-    if (pass !== ADMIN_PASS) {
-      errEl.textContent = 'Contraseña incorrecta.';
-      return;
-    }
-    var users = loadUsers();
+    if (pass !== ADMIN_PASS) { if(errEl) errEl.textContent='Contraseña incorrecta.'; return; }
     var adm = users.find(function(u){ return u.phone === phone; });
     if (!adm) {
-      adm = { id: Date.now(), name: ADMIN_NAME, phone: phone, passHash: btoa(pass), datetime: new Date().toISOString(), lastLogin: new Date().toISOString(), logins: 1 };
+      adm = {id:Date.now(),name:ADMIN_NAME,phone:phone,passHash:btoa(pass),datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
       users.unshift(adm);
-    } else {
-      adm.lastLogin = new Date().toISOString();
-      adm.logins = (adm.logins || 0) + 1;
-    }
+    } else { adm.lastLogin=new Date().toISOString(); adm.logins=(adm.logins||0)+1; }
     saveUsers(users);
     finishLogin(adm);
     return;
   }
 
-  // ── USUARIO EXISTENTE ──
-  users = loadUsers();
   var existing = users.find(function(u){ return u.phone === phone; });
   if (existing) {
-    if (existing.passHash && existing.passHash !== btoa(pass)) {
-      errEl.textContent = 'Contraseña incorrecta.';
-      return;
-    }
-    existing.lastLogin = new Date().toISOString();
-    existing.logins = (existing.logins || 0) + 1;
+    if (existing.passHash && existing.passHash !== btoa(pass)) { if(errEl) errEl.textContent='Contraseña incorrecta.'; return; }
+    existing.lastLogin=new Date().toISOString(); existing.logins=(existing.logins||0)+1;
     saveUsers(users);
     finishLogin(existing);
     return;
   }
 
-  // ── USUARIO NUEVO ──
   var name = document.getElementById('login-name').value.trim();
   if (!name) name = 'Cliente ' + phone.slice(-4);
-  var newUser = { id: Date.now(), name: name, phone: phone, passHash: btoa(pass), datetime: new Date().toISOString(), lastLogin: new Date().toISOString(), logins: 1 };
+  var newUser = {id:Date.now(),name:name,phone:phone,passHash:btoa(pass),datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
   users.push(newUser);
   saveUsers(users);
   finishLogin(newUser);
@@ -1822,13 +1797,14 @@ function deleteAllReviews() {
 }
 
 initApp();
+</script>
 
+<script>
 document.addEventListener('DOMContentLoaded', function() {
-  var loginForm = document.getElementById('login-form');
-  if (loginForm) {
-    loginForm.addEventListener('submit', function(ev) {
-      ev.preventDefault();
-      ev.stopPropagation();
+  var f = document.getElementById('login-form');
+  if (f) {
+    f.addEventListener('submit', function(ev) {
+      ev.preventDefault(); ev.stopPropagation();
       try { doLogin(); } catch(err) {
         var el = document.getElementById('login-error');
         if(el) el.textContent = err.message;
@@ -1837,42 +1813,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, true);
   }
 });
-</script>
-
-<script>
-// Wrapper global por si el scope no está disponible
-if (typeof window.doLogin === 'undefined') {
-  window.doLogin = function() {
-    var phone = document.getElementById('login-phone').value.trim().replace(/[^0-9]/g,'');
-    var pass  = document.getElementById('login-pass').value.trim();
-    var errEl = document.getElementById('login-error');
-    if (errEl) errEl.textContent = '';
-    if (!phone || phone.length < 7) { if(errEl) errEl.textContent='Ingresa tu teléfono.'; return; }
-    if (!pass  || pass.length  < 3) { if(errEl) errEl.textContent='Ingresa tu contraseña.'; return; }
-    var APHONE = document.querySelector('script') ? '3343745531' : '';
-    var APASS  = '125670Carlos';
-    var ANAME  = 'Carlos Adrian Luevano Alatorre';
-    if (phone === APHONE) {
-      if (pass !== APASS) { if(errEl) errEl.textContent='Contraseña incorrecta.'; return; }
-      var users = JSON.parse(localStorage.getItem('jersey_users') || '[]');
-      var adm = users.find(function(u){ return u.phone === phone; });
-      if (!adm) {
-        adm = {id:Date.now(),name:ANAME,phone:phone,passHash:btoa(pass),datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
-        users.unshift(adm);
-      } else { adm.lastLogin=new Date().toISOString(); adm.logins=(adm.logins||0)+1; }
-      localStorage.setItem('jersey_users', JSON.stringify(users));
-      if (typeof finishLogin === 'function') { finishLogin(adm); }
-      else {
-        localStorage.setItem('jersey_last_phone', phone);
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('app').classList.add('visible');
-      }
-      return;
-    }
-    if (typeof doLoginOriginal === 'function') doLoginOriginal();
-    else { if(errEl) errEl.textContent='Teléfono no registrado.'; }
-  };
-}
 </script>
 </body>
 </html>
