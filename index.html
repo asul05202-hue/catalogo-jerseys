@@ -966,6 +966,14 @@ function finishLogin(user) {
   const adminBtn = document.getElementById('admin-btn');
   if (isAdmin) { adminBtn.style.display='inline-flex'; _adminUnlocked=true; }
   else { adminBtn.style.display='none'; _adminUnlocked=false; }
+  // Inicializar productos si no se han cargado aún
+  if (!state.products || state.products.length === 0) {
+    initApp();
+    state.currentUser = user;
+  } else {
+    applyFilters();
+    renderProducts();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1845,7 +1853,15 @@ document.addEventListener('DOMContentLoaded', function() {
       var av = document.getElementById('user-avatar');
       if(av) av.textContent = ini;
       if(typeof state !== 'undefined') state.currentUser = user;
-      if(typeof renderProducts === 'function') renderProducts();
+      if(typeof initApp === 'function') { initApp(); state.currentUser = user; }
+      else if(typeof renderProducts === 'function') renderProducts();
+      // Admin button
+      var isAdmin = (user.phone === AP);
+      var adminBtn = document.getElementById('admin-btn');
+      var userDisp = document.getElementById('user-name-display');
+      if(adminBtn) adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+      if(userDisp) userDisp.textContent = user.name.split(' ')[0];
+      if(isAdmin && typeof _adminUnlocked !== 'undefined') _adminUnlocked = true;
     } catch(e) {
       document.getElementById('login-error').textContent = 'Error al entrar: '+e.message;
     }
