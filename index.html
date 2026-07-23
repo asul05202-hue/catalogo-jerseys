@@ -413,7 +413,7 @@ a{color:inherit;text-decoration:none}
 </style>
 </head>
 <body>
-<script src="catalog.js?v=1"></script>
+<script src="catalog.js?v=1" defer></script>
 
 
 <!-- LOGIN -->
@@ -764,6 +764,7 @@ function startApp(user){
   // Registrar visita
   logVisit(user.phone, user.isAdmin?'admin-login':'login');
   
+  attachEvents();
   loadCart();
   initApp();
 }
@@ -1079,7 +1080,6 @@ function escapeAttr(s){
 }
 
 /* ── INIT ── */
-attachEvents();
 initLogin();
 </script>
 
