@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="referrer" content="unsafe-url"/>
 <title>Jersey Store | Catálogo Exclusivo</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -456,7 +457,7 @@ a{color:inherit;text-decoration:none}
 <!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="modal" style="display:none">
   <div class="modal-box">
-    <img class="modal-img" id="modal-img" src="" alt=""/>
+    <img class="modal-img" id="modal-img" src="" alt="" referrerpolicy="unsafe-url"/>
     <div class="modal-body">
       <div class="modal-title" id="modal-name"></div>
       <div class="modal-cat" id="modal-cat"></div>
@@ -748,7 +749,7 @@ function openModal(id){
   var p=state.products.find(function(x){return x.id===id;});
   if(!p) return;
   state.modalProduct=p; state.modalSize=null; state.modalQty=1;
-  $('modal-img').src=p.image||p.thumb||'';
+  var mi=$('modal-img');mi.src='';mi.referrerPolicy='unsafe-url';mi.src=p.image||p.thumb||'';
   $('modal-name').textContent=p.name||'';
   $('modal-cat').textContent=p.category||'';
   $('modal-price').textContent=p.price?'$'+p.price:'Consultar precio';
