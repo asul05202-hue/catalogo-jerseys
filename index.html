@@ -171,13 +171,22 @@ a{color:inherit;text-decoration:none}
   box-shadow:0 16px 40px rgba(230,57,70,.2);
 }
 .card-img-wrap{
-  position:relative;padding-top:100%;background:var(--surface2);overflow:hidden;
+  position:relative;padding-top:100%;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);
+  overflow:hidden;
 }
 .card-img-wrap img{
   position:absolute;top:0;left:0;width:100%;height:100%;
-  object-fit:cover;transition:.4s;
+  object-fit:cover;transition:.4s;opacity:0;
 }
-.product-card:hover .card-img-wrap img{transform:scale(1.08)}
+.card-img-wrap img.img-ok{opacity:1}
+.card-img-placeholder{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:6px;
+  color:rgba(255,255,255,0.18);font-size:36px;pointer-events:none;
+}
+.card-img-placeholder span{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.12)}
+.product-card:hover .card-img-wrap img.img-ok{transform:scale(1.08)}
 .card-category{
   position:absolute;top:10px;left:10px;
   background:rgba(15,15,19,.85);backdrop-filter:blur(4px);
