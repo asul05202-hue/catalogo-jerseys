@@ -1838,5 +1838,41 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
+<script>
+// Wrapper global por si el scope no está disponible
+if (typeof window.doLogin === 'undefined') {
+  window.doLogin = function() {
+    var phone = document.getElementById('login-phone').value.trim().replace(/[^0-9]/g,'');
+    var pass  = document.getElementById('login-pass').value.trim();
+    var errEl = document.getElementById('login-error');
+    if (errEl) errEl.textContent = '';
+    if (!phone || phone.length < 7) { if(errEl) errEl.textContent='Ingresa tu teléfono.'; return; }
+    if (!pass  || pass.length  < 3) { if(errEl) errEl.textContent='Ingresa tu contraseña.'; return; }
+    var APHONE = document.querySelector('script') ? '3343745531' : '';
+    var APASS  = '125670Carlos';
+    var ANAME  = 'Carlos Adrian Luevano Alatorre';
+    if (phone === APHONE) {
+      if (pass !== APASS) { if(errEl) errEl.textContent='Contraseña incorrecta.'; return; }
+      var users = JSON.parse(localStorage.getItem('jersey_users') || '[]');
+      var adm = users.find(function(u){ return u.phone === phone; });
+      if (!adm) {
+        adm = {id:Date.now(),name:ANAME,phone:phone,passHash:btoa(pass),datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
+        users.unshift(adm);
+      } else { adm.lastLogin=new Date().toISOString(); adm.logins=(adm.logins||0)+1; }
+      localStorage.setItem('jersey_users', JSON.stringify(users));
+      if (typeof finishLogin === 'function') { finishLogin(adm); }
+      else {
+        localStorage.setItem('jersey_last_phone', phone);
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app').classList.add('visible');
+      }
+      return;
+    }
+    if (typeof doLoginOriginal === 'function') doLoginOriginal();
+    else { if(errEl) errEl.textContent='Teléfono no registrado.'; }
+  };
+}
+</script>
 </body>
 </html>
