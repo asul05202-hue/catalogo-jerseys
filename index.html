@@ -497,6 +497,7 @@ function doRegister(){
 // ─── START APP ────────────────────────────────────────────────────────
 function startApp(user){
   S.user = user;
+  try{ localStorage.setItem('st_session', JSON.stringify({phone:user.phone,name:user.name,isAdmin:!!user.isAdmin})); }catch(e){}
   logVisit(user.phone, user.isAdmin ? 'admin-login' : 'login');
 
   // Ocultar login, mostrar app
@@ -686,6 +687,7 @@ function sendWA(){
 // ─── LOGOUT ───────────────────────────────────────────────────────────
 function doLogout(){
   S.user=null; S.cart=[];
+  try{ localStorage.removeItem('st_session'); }catch(e){}
   $('app').style.display='none';
   $('login-screen').style.display='flex';
   $('l-phone').value=''; $('l-pass').value='';
