@@ -438,6 +438,9 @@ a{color:inherit;text-decoration:none}
     <button class="btn-login" id="btn-enter">Entrar al catálogo →</button>
     <div class="login-error" id="login-error"></div>
     <div class="login-hint">¿Primera vez? Ingresa tu número y crea tu contraseña</div>
+    <div class="login-hint" style="margin-top:6px;font-size:11px;opacity:.5">
+      <span style="cursor:pointer;text-decoration:underline" onclick="localStorage.clear();location.reload()">¿Problemas para entrar? Toca aquí para reiniciar</span>
+    </div>
   </div>
 </div>
 
@@ -595,8 +598,16 @@ function initLogin(){
   // Restaurar sesión
   try{
     var saved = localStorage.getItem('js_user');
-    if(saved){ var u=JSON.parse(saved); if(u&&u.phone){ startApp(u); return; } }
-  }catch(e){}
+    if(saved){
+      var u=JSON.parse(saved);
+      if(u&&u.phone){
+        try{ startApp(u); return; }catch(err){
+          // Sesión corrupta - limpiar y mostrar login
+          localStorage.removeItem('js_user');
+        }
+      }
+    }
+  }catch(e){ localStorage.removeItem('js_user'); }
 }
 
 function doLogin(){
