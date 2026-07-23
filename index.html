@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="referrer" content="unsafe-url"/>
 <title>Jersey Store | Catálogo Exclusivo</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -11,1098 +10,739 @@
   --bg:#0f0f13;--surface:#1a1a22;--surface2:#22222e;
   --accent:#e63946;--accent2:#ff6b6b;
   --text:#f0f0f0;--muted:#8888aa;--border:#2a2a3a;
-  --card:#1e1e28;--card-hover:#252530;
-  --green:#2ecc71;--sidebar:260px;
+  --card:#1e1e28;--green:#2ecc71;
 }
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-a{color:inherit;text-decoration:none}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
 
 /* ── LOGIN ── */
 #login-screen{
   display:flex;align-items:center;justify-content:center;
-  min-height:100vh;
-  background:linear-gradient(135deg,#0f0f13 0%,#1a0520 50%,#0a0a20 100%);
+  min-height:100vh;padding:20px;
+  background:radial-gradient(ellipse at top,#1a0a10 0%,#0f0f13 70%);
 }
 .login-box{
-  background:rgba(26,26,34,0.95);border:1px solid var(--border);
-  border-radius:24px;padding:48px 40px;width:100%;max-width:420px;
-  box-shadow:0 30px 80px rgba(0,0,0,0.6);
-  backdrop-filter:blur(10px);
+  background:rgba(26,26,34,0.97);border:1px solid var(--border);
+  border-radius:24px;padding:40px 36px;width:100%;max-width:400px;
+  box-shadow:0 30px 80px rgba(0,0,0,0.7);
 }
-.login-logo{text-align:center;margin-bottom:8px}
-.login-logo svg{width:64px;height:64px}
-.login-title{text-align:center;font-size:28px;font-weight:800;margin-bottom:4px;
-  background:linear-gradient(135deg,#fff,#cc99ff);-webkit-background-clip:text;
-  -webkit-text-fill-color:transparent}
-.login-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px}
-.form-label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;
-  letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.login-logo{text-align:center;margin-bottom:12px;font-size:48px}
+.login-title{text-align:center;font-size:26px;font-weight:800;margin-bottom:4px;
+  background:linear-gradient(135deg,#fff,#ffaaaa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px}
+.tabs{display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px}
+.tab-btn{flex:1;padding:10px;border:none;background:transparent;color:var(--muted);
+  border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.tab-btn.active{background:var(--accent);color:#fff}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
 .form-input{
   width:100%;padding:14px 16px;background:var(--surface2);
-  border:1px solid var(--border);border-radius:12px;
-  color:var(--text);font-size:16px;transition:.2s;outline:none;
-  -webkit-appearance:none;
+  border:1px solid var(--border);border-radius:12px;color:var(--text);
+  font-size:16px;outline:none;transition:.2s;-webkit-appearance:none;
 }
-.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(230,57,70,.2)}
-.form-group{margin-bottom:20px}
-.btn-login{
-  width:100%;padding:16px;
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(230,57,70,.15)}
+.btn-primary{
+  width:100%;padding:15px;margin-top:8px;
   background:linear-gradient(135deg,var(--accent),#c0392b);
-  color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;
-  cursor:pointer;margin-top:8px;transition:.2s;letter-spacing:.5px;
+  color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;
+  cursor:pointer;transition:.2s;
 }
-.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(230,57,70,.4)}
-.btn-login:active{transform:translateY(0)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(230,57,70,.4)}
+.btn-primary:active{transform:translateY(0)}
 .login-error{
-  color:var(--accent2);font-size:13px;text-align:center;
-  margin-top:12px;min-height:20px;
+  color:#ff6b6b;font-size:13px;text-align:center;
+  min-height:20px;margin-top:10px;font-weight:500;
 }
-.login-hint{color:var(--muted);font-size:12px;text-align:center;margin-top:16px}
+.login-help{color:var(--muted);font-size:12px;text-align:center;margin-top:16px;line-height:1.5}
 
 /* ── APP ── */
-#app{display:none;min-height:100vh;flex-direction:column}
-
-/* navbar */
+#app{display:none;flex-direction:column;min-height:100vh}
 .navbar{
   position:sticky;top:0;z-index:100;
-  background:rgba(15,15,19,.95);backdrop-filter:blur(12px);
+  display:flex;align-items:center;gap:12px;
+  padding:12px 20px;background:rgba(15,15,19,.95);
+  border-bottom:1px solid var(--border);backdrop-filter:blur(10px);
+}
+.nav-brand{font-weight:800;font-size:18px;color:var(--accent)}
+.nav-sub{font-size:12px;color:var(--muted);flex:1}
+.nav-avatar{
+  width:34px;height:34px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+}
+.btn-cart-nav{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+}
+.cart-count{
+  background:var(--accent);color:#fff;border-radius:50%;
+  width:18px;height:18px;font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+.filters{
+  padding:14px 20px;background:var(--surface);
   border-bottom:1px solid var(--border);
-  padding:0 20px;height:64px;display:flex;align-items:center;gap:16px;
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
 }
-.nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-brand-icon{width:36px;height:36px;background:var(--accent);
-  border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.nav-brand-text{font-weight:800;font-size:18px}
-.nav-brand-sub{font-size:11px;color:var(--muted);font-weight:400}
-.search-bar{
-  flex:1;max-width:520px;position:relative;
-}
-.search-bar input{
-  width:100%;padding:10px 16px 10px 42px;
+.filter-search{
+  flex:1;min-width:180px;padding:10px 14px;
   background:var(--surface2);border:1px solid var(--border);
-  border-radius:50px;color:var(--text);font-size:15px;outline:none;transition:.2s;
+  border-radius:10px;color:var(--text);font-size:14px;outline:none;
 }
-.search-bar input:focus{border-color:var(--accent);background:var(--surface)}
-.search-bar svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);
-  color:var(--muted);width:16px;height:16px}
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.btn-cart{
-  position:relative;background:var(--surface2);border:1px solid var(--border);
-  border-radius:50px;padding:8px 16px;cursor:pointer;
-  display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;
-  transition:.2s;
+.filter-search:focus{border-color:var(--accent)}
+.filter-select{
+  padding:10px 12px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:13px;outline:none;cursor:pointer;
 }
-.btn-cart:hover{background:var(--surface);border-color:var(--accent)}
-.cart-badge{
-  position:absolute;top:-6px;right:-6px;
-  background:var(--accent);color:#fff;
-  font-size:11px;font-weight:700;width:20px;height:20px;
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
+.catalog{padding:16px 20px;display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));flex:1}
+.card{
+  background:var(--card);border-radius:16px;overflow:hidden;
+  cursor:pointer;transition:.2s;border:1px solid var(--border);
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4);border-color:var(--accent)}
+.card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--surface2)}
+.card-body{padding:10px 12px}
+.card-name{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:6px}
+.card-price{font-size:15px;font-weight:800;color:var(--accent)}
+.card-badge{
+  display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;
+  border-radius:20px;margin-bottom:6px;
+}
+.pagination{display:flex;justify-content:center;gap:8px;padding:20px;flex-wrap:wrap}
+.page-btn{
+  padding:8px 14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;cursor:pointer;
+}
+.page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ── CART PANEL ── */
+.cart-panel{
+  position:fixed;right:-360px;top:0;bottom:0;width:340px;max-width:92vw;
+  background:var(--surface);border-left:1px solid var(--border);
+  z-index:300;transition:.3s;overflow-y:auto;padding:20px;
+}
+.cart-panel.open{right:0}
+.cart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cart-header h3{font-size:18px;font-weight:700}
+.btn-close{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px}
+.cart-item{
+  display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);
+}
+.cart-item img{width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--surface2)}
+.cart-item-info{flex:1;font-size:13px}
+.cart-item-name{font-weight:600;margin-bottom:2px}
+.cart-item-detail{color:var(--muted);margin-bottom:4px}
+.cart-item-price{color:var(--accent);font-weight:700}
+.btn-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px}
+.cart-total{font-size:16px;font-weight:700;padding:14px 0;text-align:right}
+.btn-wa{
+  width:100%;padding:14px;background:#25d366;color:#fff;
+  border:none;border-radius:12px;font-size:15px;font-weight:700;
+  cursor:pointer;margin-top:8px;
 }
 .btn-logout{
-  background:transparent;border:1px solid var(--border);
-  border-radius:50px;padding:8px 14px;cursor:pointer;font-size:13px;color:var(--muted);
-  transition:.2s;
-}
-.btn-logout:hover{border-color:var(--accent);color:var(--accent)}
-.user-avatar{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),#9b59b6);
-  display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:14px;flex-shrink:0;
+  width:100%;padding:10px;background:transparent;border:1px solid var(--border);
+  color:var(--muted);border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;
 }
 
-/* layout */
-.layout{display:flex;flex:1}
-
-/* sidebar */
-.sidebar{
-  width:var(--sidebar);flex-shrink:0;
-  background:var(--surface);border-right:1px solid var(--border);
-  padding:24px 0;overflow-y:auto;position:sticky;
-  top:64px;height:calc(100vh - 64px);
-}
-.sidebar-section{margin-bottom:8px}
-.sidebar-title{
-  font-size:10px;font-weight:700;text-transform:uppercase;
-  letter-spacing:1.5px;color:var(--muted);padding:0 20px;margin-bottom:8px;
-}
-.sidebar-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 20px;cursor:pointer;transition:.15s;
-  border-left:3px solid transparent;font-size:14px;
-}
-.sidebar-item:hover{background:var(--surface2);color:#fff}
-.sidebar-item.active{
-  background:rgba(230,57,70,.1);border-left-color:var(--accent);
-  color:var(--accent);font-weight:600;
-}
-.sidebar-item .cat-count{
-  background:var(--surface2);color:var(--muted);
-  font-size:11px;padding:2px 8px;border-radius:50px;
-}
-.sidebar-item.active .cat-count{background:rgba(230,57,70,.2);color:var(--accent)}
-
-/* main */
-.main{flex:1;padding:28px;min-width:0}
-.main-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:24px;flex-wrap:wrap;gap:12px;
-}
-.main-title{font-size:22px;font-weight:800}
-.main-count{color:var(--muted);font-size:14px;margin-top:2px}
-.sort-select{
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;padding:8px 14px;color:var(--text);font-size:14px;outline:none;
-}
-
-/* grid */
-.products-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:20px;
-}
-.product-card{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:16px;overflow:hidden;cursor:pointer;
-  transition:.25s;position:relative;
-}
-.product-card:hover{
-  transform:translateY(-6px);border-color:var(--accent);
-  box-shadow:0 16px 40px rgba(230,57,70,.2);
-}
-.card-img-wrap{
-  position:relative;padding-top:100%;
-  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);
-  overflow:hidden;
-}
-.card-img-wrap img{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  object-fit:cover;transition:.4s;opacity:0;
-}
-.card-img-wrap img.img-ok{opacity:1}
-.card-img-placeholder{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:6px;
-  color:rgba(255,255,255,0.18);font-size:36px;pointer-events:none;
-}
-.card-img-placeholder span{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.12)}
-.product-card:hover .card-img-wrap img.img-ok{transform:scale(1.08)}
-.card-category{
-  position:absolute;top:10px;left:10px;
-  backdrop-filter:blur(4px);
-  font-size:10px;font-weight:700;
-  padding:4px 10px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;
-  border:1px solid rgba(255,255,255,.15);
-}
-.cat-liga{background:rgba(0,130,60,.85);color:#7fffb2;}
-.cat-selecciones{background:rgba(0,80,180,.85);color:#a0cfff;}
-.cat-europa{background:rgba(180,120,0,.85);color:#ffe066;}
-.cat-retro{background:rgba(120,40,160,.85);color:#e0aaff;}
-.cat-jugador{background:rgba(230,57,70,.85);color:#ffc0c5;}
-.cat-fan{background:rgba(30,140,180,.85);color:#b0eeff;}
-.cat-femenino{background:rgba(200,50,130,.85);color:#ffb3de;}
-.cat-jacket{background:rgba(60,60,80,.85);color:#c0c0e0;}
-.cat-beisbol{background:rgba(180,80,0,.85);color:#ffd0a0;}
-.cat-anime{background:rgba(0,160,130,.85);color:#a0fff0;}
-.cat-shorts{background:rgba(80,80,200,.85);color:#c0c0ff;}
-.cat-default{background:rgba(15,15,19,.85);color:#aaa;}
-.card-body{padding:14px}
-.card-name{font-size:13px;font-weight:600;line-height:1.4;margin-bottom:8px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-price{font-size:16px;font-weight:800;color:var(--accent)}
-.card-price.empty{color:var(--muted);font-size:13px;font-weight:400}
-.btn-add{
-  width:100%;padding:9px;margin-top:10px;
-  background:linear-gradient(135deg,var(--accent),#c0392b);
-  color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;
-  cursor:pointer;transition:.2s;
-}
-.btn-add:hover{opacity:.9}
-.btn-add.added{background:var(--green)}
-
-/* No results */
-.no-results{
-  grid-column:1/-1;text-align:center;padding:80px 20px;
-}
-.no-results-icon{font-size:60px;margin-bottom:16px}
-.no-results h3{font-size:20px;margin-bottom:8px}
-.no-results p{color:var(--muted)}
-
-/* modal */
+/* ── MODAL ── */
 .modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;
-  display:flex;align-items:center;justify-content:center;padding:20px;
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);
+  z-index:400;align-items:center;justify-content:center;padding:20px;
 }
+.modal-overlay.open{display:flex}
 .modal-box{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:20px;max-width:480px;width:100%;
-  max-height:90vh;overflow-y:auto;
+  background:var(--surface);border-radius:20px;max-width:480px;width:100%;
+  max-height:85vh;overflow-y:auto;border:1px solid var(--border);
 }
-.modal-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px 16px 0 0}
-.modal-body{padding:24px}
-.modal-title{font-size:20px;font-weight:800;margin-bottom:6px}
-.modal-cat{color:var(--muted);font-size:13px;margin-bottom:16px}
-.modal-price{font-size:28px;font-weight:800;color:var(--accent);margin-bottom:16px}
-.modal-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px}
-.size-label{font-size:12px;font-weight:700;text-transform:uppercase;
-  letter-spacing:1px;color:var(--muted);margin-bottom:10px}
-.size-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.modal-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px 20px 0 0;background:var(--surface2)}
+.modal-body{padding:20px}
+.modal-name{font-size:20px;font-weight:800;margin-bottom:4px}
+.modal-price{font-size:24px;font-weight:800;color:var(--accent);margin-bottom:12px}
+.modal-cat{font-size:13px;color:var(--muted);margin-bottom:16px}
+.size-label{font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:500}
+.size-opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .size-btn{
-  padding:6px 16px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;cursor:pointer;font-size:14px;transition:.15s;
+  padding:8px 16px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:14px;cursor:pointer;
 }
-.size-btn:hover,.size-btn.selected{background:var(--accent);border-color:var(--accent);color:#fff}
-.qty-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.size-btn.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.qty-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .qty-btn{
   width:36px;height:36px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;cursor:pointer;font-size:20px;display:flex;
-  align-items:center;justify-content:center;transition:.15s;
+  border-radius:8px;color:var(--text);font-size:18px;cursor:pointer;
 }
-.qty-btn:hover{background:var(--accent);border-color:var(--accent)}
-.qty-val{font-size:18px;font-weight:700;min-width:30px;text-align:center}
-.modal-actions{display:flex;gap:10px}
-.btn-primary{
-  flex:1;padding:14px;background:linear-gradient(135deg,var(--accent),#c0392b);
-  color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;
-  cursor:pointer;transition:.2s;
+.qty-val{font-size:18px;font-weight:700;min-width:28px;text-align:center}
+.btn-add{
+  width:100%;padding:14px;background:var(--accent);color:#fff;
+  border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;
 }
-.btn-primary:hover{opacity:.9}
-.btn-secondary{
-  padding:14px 20px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:12px;cursor:pointer;font-size:15px;color:var(--text);transition:.2s;
+.modal-close{
+  position:absolute;top:12px;right:12px;width:36px;height:36px;
+  background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;
+  font-size:20px;cursor:pointer;z-index:10;
 }
-.btn-secondary:hover{border-color:var(--accent)}
+.modal-box{position:relative}
 
-/* cart panel */
-.cart-panel{
-  position:fixed;right:0;top:0;height:100vh;width:360px;
-  background:var(--surface);border-left:1px solid var(--border);
-  z-index:300;transform:translateX(100%);transition:.3s;
-  display:flex;flex-direction:column;
+/* ── ADMIN ── */
+.admin-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+  z-index:500;align-items:center;justify-content:center;padding:20px;
 }
-.cart-panel.open{transform:translateX(0)}
-.cart-header{
-  padding:20px 24px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
+.admin-modal.open{display:flex}
+.admin-box{
+  background:var(--surface);border-radius:20px;max-width:700px;width:100%;
+  max-height:88vh;overflow-y:auto;padding:28px;border:1px solid var(--border);
 }
-.cart-header h3{font-size:18px;font-weight:800}
-.btn-close{
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;padding:6px 12px;cursor:pointer;font-size:18px;
-  color:var(--muted);transition:.15s;
+.admin-title{font-size:22px;font-weight:800;margin-bottom:20px}
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-bottom:20px}
+.admin-stat{background:var(--surface2);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)}
+.admin-stat-num{font-size:28px;font-weight:800;color:var(--accent)}
+.admin-stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px}
+.admin-table th{text-align:left;padding:8px;color:var(--muted);border-bottom:1px solid var(--border)}
+.admin-table td{padding:8px;border-bottom:1px solid rgba(255,255,255,.05)}
+.admin-section{font-size:16px;font-weight:700;margin:20px 0 10px}
+.btn-admin-close{
+  width:100%;padding:12px;background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);border-radius:10px;font-size:14px;cursor:pointer;margin-top:16px;
 }
-.btn-close:hover{color:#fff}
-.cart-items{flex:1;overflow-y:auto;padding:16px 24px}
-.cart-item{
-  display:flex;gap:12px;padding:12px 0;
-  border-bottom:1px solid var(--border);
-}
-.cart-item img{width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0}
-.cart-item-info{flex:1;min-width:0}
-.cart-item-name{font-size:13px;font-weight:600;margin-bottom:4px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cart-item-meta{color:var(--muted);font-size:12px;margin-bottom:4px}
-.cart-item-price{color:var(--accent);font-weight:700;font-size:13px}
-.btn-rm{background:none;border:none;color:var(--muted);cursor:pointer;
-  font-size:18px;padding:0 4px;flex-shrink:0;transition:.15s}
-.btn-rm:hover{color:var(--accent)}
-.cart-empty{text-align:center;padding:60px 20px;color:var(--muted)}
-.cart-footer{padding:20px 24px;border-top:1px solid var(--border)}
-.cart-total{display:flex;justify-content:space-between;font-weight:700;
-  font-size:18px;margin-bottom:16px}
-.btn-whatsapp{
-  width:100%;padding:15px;
-  background:linear-gradient(135deg,#25D366,#128C7E);
-  color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
-  transition:.2s;
-}
-.btn-whatsapp:hover{opacity:.9;transform:translateY(-2px)}
 
-/* toast */
+/* ── TOAST ── */
 .toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
   background:var(--green);color:#fff;padding:12px 24px;border-radius:50px;
-  font-weight:700;z-index:9999;transition:.3s;font-size:14px;
+  font-weight:700;z-index:9999;transition:.3s;font-size:14px;white-space:nowrap;
 }
 .toast.show{transform:translateX(-50%) translateY(0)}
 
-/* responsive */
-@media(max-width:768px){
-  :root{--sidebar:0px}
-  .sidebar{display:none}
-  .layout{flex-direction:column}
-  .main{padding:16px}
-  .products-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-  .search-bar{max-width:100%;flex:1}
-  .nav-brand-sub{display:none}
-  .cart-panel{width:100%;max-width:100%}
-  .modal-box{max-width:100%;border-radius:16px}
-  
-  /* Mobile filter bar */
-  .mobile-cats{
-    display:flex;overflow-x:auto;gap:8px;padding:12px 16px;
-    background:var(--surface);border-bottom:1px solid var(--border);
-    scrollbar-width:none;
-  }
-  .mobile-cats::-webkit-scrollbar{display:none}
-  .mobile-cat-btn{
-    flex-shrink:0;padding:7px 16px;
-    background:var(--surface2);border:1px solid var(--border);
-    border-radius:50px;font-size:13px;cursor:pointer;white-space:nowrap;transition:.15s;
-  }
-  .mobile-cat-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .catalog{grid-template-columns:repeat(2,1fr);padding:12px;gap:10px}
+  .login-box{padding:28px 20px}
+  .navbar{padding:10px 14px}
 }
-@media(min-width:769px){.mobile-cats{display:none}}
-
-/* Pagination */
-.pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:32px;flex-wrap:wrap}
-.page-btn{
-  padding:8px 16px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;cursor:pointer;font-size:14px;transition:.15s;
-}
-.page-btn:hover{border-color:var(--accent)}
-.page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
-.page-btn:disabled{opacity:.4;cursor:default}
-
-/* ── ADMIN PANEL ── */
-.btn-admin{
-  background:linear-gradient(135deg,#e63946,#9b59b6);
-  border:none;border-radius:50px;padding:8px 16px;color:#fff;
-  font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;
-  transition:.2s;
-}
-.btn-admin:hover{opacity:.85}
-.admin-panel{
-  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;
-  display:flex;align-items:center;justify-content:center;padding:16px;
-}
-.admin-panel-box{
-  background:var(--surface);border:1px solid var(--border);border-radius:16px;
-  width:100%;max-width:800px;max-height:90vh;overflow:hidden;
-  display:flex;flex-direction:column;
-}
-.admin-header{
-  padding:20px 24px;border-bottom:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center;
-}
-.admin-header h2{margin:0;font-size:18px;color:var(--accent);}
-.admin-close{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;}
-.admin-body{overflow-y:auto;padding:20px 24px;flex:1;}
-.admin-tabs{display:flex;gap:8px;margin-bottom:20px;}
-.admin-tab{
-  padding:8px 18px;border-radius:50px;border:1px solid var(--border);
-  background:var(--surface2);color:var(--muted);cursor:pointer;font-size:13px;transition:.15s;
-}
-.admin-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
-.admin-table{width:100%;border-collapse:collapse;font-size:13px;}
-.admin-table th{
-  text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);
-  color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.5px;
-}
-.admin-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);}
-.admin-table tr:hover td{background:var(--surface2);}
-.admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
-.admin-stat{
-  background:var(--surface2);border-radius:12px;padding:16px;text-align:center;
-}
-.admin-stat-num{font-size:28px;font-weight:800;color:var(--accent);}
-.admin-stat-label{font-size:12px;color:var(--muted);margin-top:4px;}
-.badge-online{display:inline-block;width:8px;height:8px;background:#2ecc71;border-radius:50%;margin-right:6px;}
 </style>
 </head>
 <body>
-<script src="catalog.js?v=1" defer></script>
 
-
-<!-- LOGIN -->
+<!-- ══ LOGIN SCREEN ══ -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="30" fill="#e63946" opacity=".15" stroke="#e63946" stroke-width="2"/>
-        <text x="32" y="44" text-anchor="middle" font-size="30">⚽</text>
-      </svg>
-    </div>
+    <div class="login-logo">⚽</div>
     <div class="login-title">Jersey Store</div>
     <div class="login-sub">Catálogo exclusivo · Acceso con registro</div>
-    <div class="form-group">
-      <label class="form-label" for="lp">Número de teléfono</label>
-      <input class="form-input" type="tel" id="lp" placeholder="Ej: 3343745531" autocomplete="tel"/>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-login" onclick="showTab('login')">Entrar</button>
+      <button class="tab-btn" id="tab-register" onclick="showTab('register')">Registrarse</button>
     </div>
-    <div class="form-group">
-      <label class="form-label" for="lk">Contraseña</label>
-      <input class="form-input" type="password" id="lk" placeholder="Tu contraseña" autocomplete="current-password"/>
+
+    <!-- Login form -->
+    <div id="form-login">
+      <div class="form-group">
+        <label class="form-label">Número de teléfono</label>
+        <input class="form-input" id="l-phone" type="tel" placeholder="Ej: 3343745531" inputmode="numeric"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" id="l-pass" type="password" placeholder="Tu contraseña"/>
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Entrar al catálogo →</button>
     </div>
-    <button class="btn-login" id="btn-enter">Entrar al catálogo →</button>
+
+    <!-- Register form -->
+    <div id="form-register" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" id="r-name" type="text" placeholder="Tu nombre"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de teléfono</label>
+        <input class="form-input" id="r-phone" type="tel" placeholder="Ej: 3343745531" inputmode="numeric"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" id="r-pass" type="password" placeholder="Mín. 6 caracteres"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar contraseña</label>
+        <input class="form-input" id="r-pass2" type="password" placeholder="Repite tu contraseña"/>
+      </div>
+      <button class="btn-primary" onclick="doRegister()">Crear cuenta →</button>
+    </div>
+
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">¿Primera vez? Ingresa tu número y crea tu contraseña</div>
-    <div class="login-hint" style="margin-top:6px;font-size:11px;opacity:.5">
-      <span style="cursor:pointer;text-decoration:underline" onclick="localStorage.clear();location.reload()">¿Problemas para entrar? Toca aquí para reiniciar</span>
-    </div>
+    <div class="login-help">Para pedir: contacta por WhatsApp al finalizar tu selección</div>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ══ APP ══ -->
 <div id="app">
+
+  <!-- Navbar -->
   <nav class="navbar">
-    <div class="nav-brand">
-      <div class="nav-brand-icon">⚽</div>
-      <div>
-        <div class="nav-brand-text">Jersey Store</div>
-        <div class="nav-brand-sub" id="nav-sub">Catálogo 2024-2026</div>
-      </div>
-    </div>
-    <div class="search-bar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input id="search-input" type="search" placeholder="Buscar jerseys..."/>
-    </div>
-    <div class="nav-right" id="nav-right">
-      <div class="user-avatar" id="user-avatar">?</div>
-      <button class="btn-cart" id="btn-cart-open">
-        🛒 <span id="cart-label">Carrito</span>
-        <span class="cart-badge" id="cart-badge" style="display:none">0</span>
-      </button>
-      <button class="btn-logout" id="btn-logout">Salir</button>
-    </div>
+    <span class="nav-brand">⚽ Jerseys</span>
+    <span class="nav-sub" id="nav-sub">Catálogo 2024-2026</span>
+    <button class="btn-cart-nav" id="btn-cart-open">
+      🛒 <span class="cart-count" id="cart-count">0</span>
+    </button>
+    <div class="nav-avatar" id="user-avatar" title="Cerrar sesión"></div>
   </nav>
 
-  <!-- Mobile categories -->
-  <div class="mobile-cats" id="mobile-cats"></div>
-
-  <div class="layout">
-    <aside class="sidebar" id="sidebar"></aside>
-    <main class="main">
-      <div class="main-header">
-        <div>
-          <div class="main-title" id="main-title">Todos los productos</div>
-          <div class="main-count" id="main-count"></div>
-        </div>
-        <select class="sort-select" id="sort-select">
-          <option value="default">Sin orden</option>
-          <option value="az">A → Z</option>
-          <option value="za">Z → A</option>
-          <option value="price_asc">Precio ↑</option>
-          <option value="price_desc">Precio ↓</option>
-        </select>
-      </div>
-      <div class="products-grid" id="products-grid"></div>
-      <div class="pagination" id="pagination"></div>
-    </main>
+  <!-- Filters -->
+  <div class="filters">
+    <input class="filter-search" id="search-input" type="search" placeholder="🔍 Buscar jersey..."/>
+    <select class="filter-select" id="cat-select">
+      <option value="all">Todas las categorías</option>
+      <option value="Liga MX">Liga MX</option>
+      <option value="Selecciones">Selecciones</option>
+      <option value="Europa - Clubes">Europa - Clubes</option>
+      <option value="Retro Europa">Retro Europa</option>
+      <option value="Retro Liga MX">Retro Liga MX</option>
+      <option value="Retros Barcelona">Retros Barcelona</option>
+      <option value="Jackets">Jackets</option>
+      <option value="Béisbol">Béisbol</option>
+      <option value="Shorts">Shorts</option>
+    </select>
+    <select class="filter-select" id="sort-select">
+      <option value="default">Orden default</option>
+      <option value="az">A → Z</option>
+      <option value="za">Z → A</option>
+    </select>
   </div>
+
+  <!-- Catalog grid -->
+  <div class="catalog" id="catalog-grid"></div>
+  <div class="pagination" id="pagination"></div>
+
 </div>
 
-<!-- CART PANEL -->
+<!-- ══ CART PANEL ══ -->
 <div class="cart-panel" id="cart-panel">
   <div class="cart-header">
     <h3>🛒 Tu carrito</h3>
     <button class="btn-close" id="btn-cart-close">✕</button>
   </div>
-  <div class="cart-items" id="cart-items-list"></div>
-  <div class="cart-footer" id="cart-footer" style="display:none">
-    <div class="cart-total">
-      <span>Total</span><span id="cart-total-price">$0</span>
-    </div>
-    <button class="btn-whatsapp" id="btn-whatsapp">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-      </svg>
-      Pedir por WhatsApp
-    </button>
-  </div>
+  <div id="cart-items"></div>
+  <div class="cart-total" id="cart-total"></div>
+  <button class="btn-wa" id="btn-whatsapp">📲 Pedir por WhatsApp</button>
+  <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
 </div>
 
-<!-- PRODUCT MODAL -->
-<div class="modal-overlay" id="modal" style="display:none">
+<!-- ══ PRODUCT MODAL ══ -->
+<div class="modal-overlay" id="modal">
   <div class="modal-box">
-    <img class="modal-img" id="modal-img" src="" alt="" referrerpolicy="unsafe-url"/>
+    <button class="modal-close" id="modal-close">✕</button>
+    <img class="modal-img" id="modal-img" src="" alt="" loading="lazy"/>
     <div class="modal-body">
-      <div class="modal-title" id="modal-name"></div>
-      <div class="modal-cat" id="modal-cat"></div>
+      <div class="modal-name" id="modal-name"></div>
       <div class="modal-price" id="modal-price"></div>
-      <div class="modal-desc" id="modal-desc"></div>
-      <div class="size-label">Talla</div>
-      <div class="size-grid" id="size-grid"></div>
+      <div class="modal-cat" id="modal-cat"></div>
+      <div class="size-label">Talla:</div>
+      <div class="size-opts" id="modal-sizes"></div>
       <div class="qty-row">
-        <span style="font-size:13px;color:var(--muted)">Cantidad:</span>
         <button class="qty-btn" id="qty-minus">−</button>
         <span class="qty-val" id="qty-val">1</span>
         <button class="qty-btn" id="qty-plus">+</button>
       </div>
-      <div class="modal-actions">
-        <button class="btn-primary" id="modal-add-btn">🛒 Agregar al carrito</button>
-        <button class="btn-secondary" id="modal-close">✕</button>
-      </div>
+      <button class="btn-add" id="modal-add-btn">Agregar al carrito</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- ══ ADMIN MODAL ══ -->
+<div class="admin-modal" id="admin-modal">
+  <div class="admin-box">
+    <div class="admin-title">⚙️ Panel de Administración</div>
+    <div class="admin-stats" id="admin-stats"></div>
+    <div class="admin-section">👥 Usuarios registrados</div>
+    <div id="admin-users"></div>
+    <div class="admin-section">📋 Últimos accesos</div>
+    <div id="admin-visits"></div>
+    <button class="btn-admin-close" onclick="closeAdmin()">Cerrar</button>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
 
-<!-- ══════════════════════════════════════════
-     JAVASCRIPT PRINCIPAL
-═══════════════════════════════════════════ -->
+<!-- ══ JS ══ -->
 <script>
 'use strict';
 
-var ADMIN_PASS = '125670Carlos';
+// ─── CONFIG ───────────────────────────────────────────────────────────
 var ADMIN_PHONE = '3343745531';
-var ADMIN_NAME = 'Carlos Adrian Luevano Alatorre';
-var WA_NUMBER = '523343745531';
+var ADMIN_PASS  = '125670Carlos';
+var ADMIN_NAME  = 'Carlos';
+var WA_NUMBER   = '523343745531';
+var ITEMS_PER_PAGE = 60;
 
-/* ── STATE ── */
-var state = {
+// ─── BADGE COLORS ─────────────────────────────────────────────────────
+var BADGE_MAP = {
+  'Liga MX':          {bg:'#1a472a',color:'#2ecc71'},
+  'Selecciones':      {bg:'#1a3a5c',color:'#5dade2'},
+  'Europa - Clubes':  {bg:'#2d1b4e',color:'#9b59b6'},
+  'Retro Europa':     {bg:'#4a2040',color:'#e91e8c'},
+  'Retro Liga MX':    {bg:'#3d2000',color:'#f39c12'},
+  'Retros Barcelona': {bg:'#3d0000',color:'#e74c3c'},
+  'Jackets':          {bg:'#1a3333',color:'#1abc9c'},
+  'Béisbol':          {bg:'#2a2a00',color:'#f1c40f'},
+  'Shorts':           {bg:'#1a1a3a',color:'#a0a0ff'},
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────
+var S = {
   user: null,
   products: [],
   filtered: [],
   cart: [],
-  category: 'all',
-  search: '',
-  sort: 'default',
   page: 1,
-  perPage: 48,
+  search: '',
+  category: 'all',
+  sort: 'default',
   modalProduct: null,
-  modalSize: null,
+  modalSize: 'M',
   modalQty: 1,
 };
 
-/* ── UTILS ── */
+// ─── UTILS ────────────────────────────────────────────────────────────
 function $(id){ return document.getElementById(id); }
-function show(id){ var el=$(id); if(el) el.style.display=''; }
-function hide(id){ var el=$(id); if(el) el.style.display='none'; }
-function showFlex(id){ var el=$(id); if(el) el.style.display='flex'; }
-
-function showToast(msg, color){
-  var t=$('toast'); t.textContent=msg;
-  t.style.background=color||'#2ecc71';
-  t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg){
+  var t=$('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
 }
 
-/* ── STORAGE ── */
-function saveCart(){ try{ localStorage.setItem('js_cart', JSON.stringify(state.cart)); }catch(e){} }
-function loadCart(){
-  try{ var c=localStorage.getItem('js_cart'); if(c) state.cart=JSON.parse(c)||[]; }catch(e){}
+// ─── STORAGE ──────────────────────────────────────────────────────────
+function getUsers(){ try{ return JSON.parse(localStorage.getItem('st_users')||'[]'); }catch(e){ return []; } }
+function saveUsers(u){ try{ localStorage.setItem('st_users',JSON.stringify(u)); }catch(e){} }
+function getVisits(){ try{ return JSON.parse(localStorage.getItem('st_visits')||'[]'); }catch(e){ return []; } }
+function logVisit(phone,action){
+  var v=getVisits();
+  v.push({phone:phone,action:action,ts:Date.now()});
+  if(v.length>500) v=v.slice(-500);
+  try{ localStorage.setItem('st_visits',JSON.stringify(v)); }catch(e){}
+}
+function getCart(){ try{ return JSON.parse(localStorage.getItem('st_cart_'+( S.user?S.user.phone:''))||'[]'); }catch(e){ return []; } }
+function saveCart(){ try{ localStorage.setItem('st_cart_'+(S.user?S.user.phone:''),JSON.stringify(S.cart)); }catch(e){} }
+
+// ─── TABS ─────────────────────────────────────────────────────────────
+function showTab(t){
+  $('form-login').style.display    = t==='login'    ? '' : 'none';
+  $('form-register').style.display = t==='register' ? '' : 'none';
+  $('tab-login').classList.toggle('active',    t==='login');
+  $('tab-register').classList.toggle('active', t==='register');
+  $('login-error').textContent='';
 }
 
-/* ── LOGIN ── */
-function initLogin(){
-  $('btn-enter').addEventListener('click', doLogin);
-  $('lk').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
-  $('lp').addEventListener('keydown', function(e){ if(e.key==='Enter') $('lk').focus(); });
-  
-  // Restaurar sesión
-  try{
-    var saved = localStorage.getItem('js_user');
-    if(saved){
-      var u=JSON.parse(saved);
-      if(u&&u.phone){
-        try{ startApp(u); return; }catch(err){
-          // Sesión corrupta - limpiar y restaurar pantalla de login
-          localStorage.removeItem('js_user');
-          try{ $('login-screen').style.display=''; }catch(e2){}
-          try{ $('app').style.display='none'; }catch(e2){}
-        }
-      }
-    }
-  }catch(e){ localStorage.removeItem('js_user'); }
-}
-
+// ─── LOGIN ────────────────────────────────────────────────────────────
 function doLogin(){
-  var phone = ($('lp').value||'').trim().replace(/\D/g,'');
-  var pass  = ($('lk').value||'').trim();
-  var errEl = $('login-error');
-  errEl.textContent='';
+  var phone = ($('l-phone').value||'').trim().replace(/\D/g,'');
+  var pass  = ($('l-pass').value||'').trim();
+  var err   = $('login-error');
+  err.textContent='';
+  if(!phone){ err.textContent='Ingresa tu número de teléfono'; return; }
+  if(!pass){  err.textContent='Ingresa tu contraseña'; return; }
 
-  if(!phone){ errEl.textContent='Ingresa tu número de teléfono'; return; }
-  if(!pass){  errEl.textContent='Ingresa tu contraseña'; return; }
-
-  // Admin directo
+  // Admin
   if(phone===ADMIN_PHONE){
-    if(pass!==ADMIN_PASS){ errEl.textContent='Contraseña incorrecta'; return; }
-    var adminUser={phone:phone, name:ADMIN_NAME, isAdmin:true};
-    try{ localStorage.setItem('js_user', JSON.stringify(adminUser)); }catch(e){}
-    startApp(adminUser);
+    if(pass!==ADMIN_PASS){ err.textContent='Contraseña incorrecta'; return; }
+    startApp({phone:phone, name:ADMIN_NAME, isAdmin:true});
     return;
   }
 
-  // Usuarios registrados
-  var users=[];
-  try{ users=JSON.parse(localStorage.getItem('js_users')||'[]'); }catch(e){}
-  var existing=users.find(function(u){ return u.phone===phone; });
+  // Usuarios normales
+  var users = getUsers();
+  var u = users.find(function(x){ return x.phone===phone; });
+  if(!u){ err.textContent='Número no registrado. Regístrate primero.'; return; }
+  if(u.pass !== btoa(pass)){ err.textContent='Contraseña incorrecta'; return; }
+  u.lastLogin = Date.now();
+  saveUsers(users);
+  startApp({phone:phone, name:u.name});
+}
 
-  if(existing){
-    if(existing.pass!==btoa(pass)){ errEl.textContent='Contraseña incorrecta'; return; }
-    existing.lastLogin=new Date().toISOString();
-    try{ localStorage.setItem('js_users', JSON.stringify(users)); }catch(e){}
-    try{ localStorage.setItem('js_user', JSON.stringify(existing)); }catch(e){}
-    startApp(existing);
-  } else {
-    // Nuevo usuario
-    var nu={phone:phone,name:'Cliente '+phone.slice(-4),pass:btoa(pass),
-            created:new Date().toISOString(),lastLogin:new Date().toISOString(),isAdmin:false};
-    users.push(nu);
-    try{ localStorage.setItem('js_users', JSON.stringify(users)); }catch(e){}
-    try{ localStorage.setItem('js_user', JSON.stringify(nu)); }catch(e){}
-    startApp(nu);
+// ─── REGISTER ─────────────────────────────────────────────────────────
+function doRegister(){
+  var name  = ($('r-name').value||'').trim();
+  var phone = ($('r-phone').value||'').trim().replace(/\D/g,'');
+  var pass  = ($('r-pass').value||'').trim();
+  var pass2 = ($('r-pass2').value||'').trim();
+  var err   = $('login-error');
+  err.textContent='';
+  if(!name){              err.textContent='Ingresa tu nombre'; return; }
+  if(!phone){             err.textContent='Ingresa tu número de teléfono'; return; }
+  if(phone.length<8){     err.textContent='Número muy corto'; return; }
+  if(!pass){              err.textContent='Ingresa una contraseña'; return; }
+  if(pass.length<6){      err.textContent='La contraseña debe tener al menos 6 caracteres'; return; }
+  if(pass!==pass2){       err.textContent='Las contraseñas no coinciden'; return; }
+  if(phone===ADMIN_PHONE){ err.textContent='Número no disponible'; return; }
+
+  var users = getUsers();
+  if(users.find(function(x){ return x.phone===phone; })){
+    err.textContent='Ese número ya está registrado. Inicia sesión.';
+    return;
   }
+  users.push({phone:phone, name:name, pass:btoa(pass), createdAt:Date.now(), lastLogin:null});
+  saveUsers(users);
+  logVisit(phone,'register');
+  showToast('¡Cuenta creada! Entrando...');
+  setTimeout(function(){ startApp({phone:phone, name:name}); }, 800);
 }
 
-
-function getCatClass(cat){
-  var map={
-    'Liga MX':'cat-liga','Selecciones':'cat-selecciones',
-    'Europa - Clubes':'cat-europa','Retro Europa':'cat-retro',
-    'Retro Liga MX':'cat-retro','Retros - Barcelona':'cat-retro',
-    'Versión jugador':'cat-jugador','Versión fan':'cat-fan',
-    'Femenino':'cat-femenino','Sachets / Jackets':'cat-jacket',
-    'Playeras de Béisbol':'cat-beisbol','Anime / Especial':'cat-anime','Shorts':'cat-shorts'
-  };
-  return map[cat]||'cat-default';
-}
-function buildCatBadge(cat){
-  return '<div class="card-category '+getCatClass(cat)+'">'+escapeHtml(cat||'')+'</div>';
-}
-
-/* ── ADMIN ── */
-function openAdmin(){
-  var users=[];
-  try{ users=JSON.parse(localStorage.getItem('js_users')||'[]'); }catch(e){}
-  var visits=[];
-  try{ visits=JSON.parse(localStorage.getItem('js_visits')||'[]'); }catch(e){}
-  
-  // Stats
-  var totalVisits = visits.length;
-  var uniquePhones = [...new Set(visits.map(function(v){return v.phone;}))].length;
-  var today = new Date().toDateString();
-  var todayVisits = visits.filter(function(v){return new Date(v.ts).toDateString()===today;}).length;
-  
-  var statsEl = document.getElementById('admin-stats');
-  if(statsEl) statsEl.innerHTML = 
-    '<div class="admin-stat"><div class="admin-stat-num">'+users.length+'</div><div class="admin-stat-label">Usuarios registrados</div></div>'+
-    '<div class="admin-stat"><div class="admin-stat-num">'+totalVisits+'</div><div class="admin-stat-label">Accesos totales</div></div>'+
-    '<div class="admin-stat"><div class="admin-stat-num">'+todayVisits+'</div><div class="admin-stat-label">Accesos hoy</div></div>'+
-    '<div class="admin-stat"><div class="admin-stat-num">'+state.products.length+'</div><div class="admin-stat-label">Productos</div></div>';
-  
-  // Tabla usuarios
-  var usersEl = document.getElementById('admin-tab-users');
-  if(usersEl){
-    if(users.length===0){
-      usersEl.innerHTML='<p style="color:var(--muted);text-align:center;padding:30px">Sin usuarios registrados aún</p>';
-    } else {
-      var rows = users.slice().reverse().map(function(u){
-        var last = u.lastLogin ? new Date(u.lastLogin).toLocaleString('es-MX') : 'Nunca';
-        var reg = u.createdAt ? new Date(u.createdAt).toLocaleString('es-MX') : '?';
-        return '<tr><td>'+escapeHtml(u.phone||'')+'</td><td>'+escapeHtml(u.name||'-')+'</td><td>'+reg+'</td><td>'+last+'</td></tr>';
-      }).join('');
-      usersEl.innerHTML='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Nombre</th><th>Registrado</th><th>Último acceso</th></tr></thead><tbody>'+rows+'</tbody></table>';
-    }
-  }
-  
-  // Tabla visitas
-  var visitsEl = document.getElementById('admin-tab-visits');
-  if(visitsEl){
-    if(visits.length===0){
-      visitsEl.innerHTML='<p style="color:var(--muted);text-align:center;padding:30px">Sin registros de acceso aún</p>';
-    } else {
-      var vrows = visits.slice().reverse().slice(0,100).map(function(v){
-        var fecha = v.ts ? new Date(v.ts).toLocaleString('es-MX') : '?';
-        return '<tr><td>'+escapeHtml(v.phone||'')+'</td><td>'+fecha+'</td><td>'+escapeHtml(v.action||'login')+'</td></tr>';
-      }).join('');
-      visitsEl.innerHTML='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Fecha/Hora</th><th>Acción</th></tr></thead><tbody>'+vrows+'</tbody></table>';
-    }
-  }
-  
-  document.getElementById('admin-panel').style.display='flex';
-}
-
-function closeAdmin(){
-  document.getElementById('admin-panel').style.display='none';
-}
-
-function adminTab(tab){
-  document.getElementById('admin-tab-users').style.display = tab==='users'?'':'none';
-  document.getElementById('admin-tab-visits').style.display = tab==='visits'?'':'none';
-  document.querySelectorAll('.admin-tab').forEach(function(b){
-    b.classList.toggle('active', b.textContent.toLowerCase().includes(tab));
-  });
-}
-
-function logVisit(phone, action){
-  var visits=[];
-  try{ visits=JSON.parse(localStorage.getItem('js_visits')||'[]'); }catch(e){}
-  visits.push({phone:phone, ts:new Date().toISOString(), action:action||'login'});
-  if(visits.length>500) visits=visits.slice(-500);
-  try{ localStorage.setItem('js_visits', JSON.stringify(visits)); }catch(e){}
-}
-
+// ─── START APP ────────────────────────────────────────────────────────
 function startApp(user){
-  state.user=user;
+  S.user = user;
+  logVisit(user.phone, user.isAdmin ? 'admin-login' : 'login');
+
+  // Ocultar login, mostrar app
   $('login-screen').style.display='none';
   $('app').style.display='flex';
-  $('app').style.flexDirection='column';
-  
+
+  // Avatar
   var initials=(user.name||'').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase()||user.phone.slice(-2);
   $('user-avatar').textContent=initials;
   $('nav-sub').textContent=user.isAdmin?'⚙ Administrador':'Catálogo 2024-2026';
-  
+
+  // Botón admin en navbar si es admin
   if(user.isAdmin){
-    var navRight=document.getElementById('nav-right');
-    if(navRight){
-      var btnAdmin=document.createElement('button');
-      btnAdmin.className='btn-admin';
-      btnAdmin.innerHTML='⚙️ Admin';
-      btnAdmin.onclick=openAdmin;
-      navRight.insertBefore(btnAdmin,navRight.firstChild);
-    }
+    var btn=document.createElement('button');
+    btn.className='btn-cart-nav';
+    btn.innerHTML='⚙️';
+    btn.onclick=openAdmin;
+    $('user-avatar').parentNode.insertBefore(btn, $('user-avatar'));
   }
-  
-  // Registrar visita
-  logVisit(user.phone, user.isAdmin?'admin-login':'login');
-  
+
+  // Cargar carrito y catálogo
+  S.cart = getCart();
+  updateCartCount();
   attachEvents();
-  loadCart();
-  initApp();
+  initCatalog();
 }
 
-/* ── CATALOG ── */
-function initApp(){
-  state.products = (window.CATALOG_SEED||[]).slice();
-  if(state.products.length===0){
-    $('products-grid').innerHTML='<div class="no-results"><div class="no-results-icon">📦</div><h3>Sin productos</h3><p>Recarga la página</p></div>';
-    return;
-  }
-  buildSidebar();
-  buildMobileCats();
-  applyFilters();
-  updateCartBadge();
-}
-
-/* categories */
-function getCategories(){
-  var cats={};
-  state.products.forEach(function(p){
-    var c=p.category||'General';
-    cats[c]=(cats[c]||0)+1;
-  });
-  return cats;
-}
-
-function buildSidebar(){
-  var cats=getCategories();
-  var html='<div class="sidebar-section"><div class="sidebar-title">Categorías</div>';
-  html+='<div class="sidebar-item '+(state.category==='all'?'active':'')+'" data-cat="all">';
-  html+='<span>🏠 Todos</span><span class="cat-count">'+state.products.length+'</span></div>';
-  
-  var icons={'Liga MX':'🇲🇽','Selecciones':'🌍','Europa - Clubes':'🏆',
-    'Retro Europa':'🏛','Retro Liga MX':'🎞','Retros - Barcelona':'🔵',
-    'Versión jugador':'⭐','Versión fan':'👕','Femenino':'♀',
-    'Sachets / Jackets':'🧥','Playeras de Béisbol':'⚾','Anime / Especial':'🎌','Shorts':'🩳'};
-
-  Object.keys(cats).sort().forEach(function(cat){
-    var icon=icons[cat]||'👕';
-    var active=state.category===cat?'active':'';
-    html+='<div class="sidebar-item '+active+'" data-cat="'+escapeAttr(cat)+'">';
-    html+='<span>'+icon+' '+escapeHtml(cat)+'</span>';
-    html+='<span class="cat-count">'+cats[cat]+'</span></div>';
-  });
-  html+='</div>';
-  $('sidebar').innerHTML=html;
-  $('sidebar').querySelectorAll('.sidebar-item').forEach(function(el){
-    el.addEventListener('click', function(){
-      state.category=this.dataset.cat; state.page=1; applyFilters(); buildSidebar(); buildMobileCats();
-    });
-  });
-}
-
-function buildMobileCats(){
-  var cats=getCategories();
-  var html='<button class="mobile-cat-btn '+(state.category==='all'?'active':'')+'" data-cat="all">Todos</button>';
-  Object.keys(cats).sort().forEach(function(cat){
-    var active=state.category===cat?'active':'';
-    html+='<button class="mobile-cat-btn '+active+'" data-cat="'+escapeAttr(cat)+'">'+escapeHtml(cat)+'</button>';
-  });
-  $('mobile-cats').innerHTML=html;
-  $('mobile-cats').querySelectorAll('.mobile-cat-btn').forEach(function(el){
-    el.addEventListener('click', function(){
-      state.category=this.dataset.cat; state.page=1; applyFilters(); buildSidebar(); buildMobileCats();
-    });
-  });
-}
-
-/* filter + render */
-function applyFilters(){
-  var q=state.search.toLowerCase();
-  var filtered=state.products.filter(function(p){
-    if(state.category!=='all'&&p.category!==state.category) return false;
-    if(q&&!(p.name||'').toLowerCase().includes(q)&&
-          !(p.category||'').toLowerCase().includes(q)&&
-          !(p.description||'').toLowerCase().includes(q)) return false;
-    return true;
-  });
-
-  // sort
-  if(state.sort==='az') filtered.sort(function(a,b){return (a.name||'').localeCompare(b.name||'')});
-  if(state.sort==='za') filtered.sort(function(a,b){return (b.name||'').localeCompare(a.name||'')});
-  if(state.sort==='price_asc') filtered.sort(function(a,b){return parseFloat(a.price||0)-parseFloat(b.price||0)});
-  if(state.sort==='price_desc') filtered.sort(function(a,b){return parseFloat(b.price||0)-parseFloat(a.price||0)});
-
-  state.filtered=filtered;
-  $('main-title').textContent = state.category==='all'?'Todos los productos':state.category;
-  $('main-count').textContent = filtered.length+' productos';
-  renderPage();
-  renderPagination();
-}
-
-function renderPage(){
-  var start=(state.page-1)*state.perPage;
-  var pageItems=state.filtered.slice(start, start+state.perPage);
-  if(pageItems.length===0){
-    $('products-grid').innerHTML='<div class="no-results"><div class="no-results-icon">🔍</div><h3>Sin resultados</h3><p>Prueba con otro filtro o búsqueda</p></div>';
-    return;
-  }
-  $('products-grid').innerHTML=pageItems.map(renderCard).join('');
-  $('products-grid').querySelectorAll('.product-card').forEach(function(el){
-    el.addEventListener('click', function(){ openModal(parseInt(this.dataset.id)); });
-  });
-  $('products-grid').querySelectorAll('.btn-add').forEach(function(el){
-    el.addEventListener('click', function(e){
-      e.stopPropagation();
-      quickAdd(parseInt(this.dataset.id));
-    });
-  });
-}
-
-function renderCard(p){
-  var price=p.price?'$'+p.price:'Consultar precio';
-  var priceClass=p.price?'card-price':'card-price empty';
-  var img=p.thumb||p.image||'';
-  return '<div class="product-card" data-id="'+p.id+'">'
-    +'<div class="card-img-wrap">'
-    +'<div class="card-img-placeholder">👕<span>'+escapeHtml(p.category||'')+ '</span></div>'
-    +(img?'<img src="'+escapeAttr(img)+'" alt="'+escapeAttr(p.name)+'" loading="lazy" referrerpolicy="unsafe-url" onload="this.classList.add(\'img-ok\')" onerror="this.remove()"/>':'')
-    '+buildCatBadge(p.category)
-    +'<div class="card-body">'
-    +'<div class="card-name">'+escapeHtml(p.name||'')+'</div>'
-    +'<div class="'+priceClass+'">'+escapeHtml(price)+'</div>'
-    +'<button class="btn-add" data-id="'+p.id+'">+ Agregar</button>'
-    +'</div></div>';
-}
-
-function renderPagination(){
-  var total=Math.ceil(state.filtered.length/state.perPage);
-  if(total<=1){ $('pagination').innerHTML=''; return; }
-  var html='';
-  html+='<button class="page-btn"'+(state.page===1?' disabled':'')+' data-p="'+(state.page-1)+'">← Ant</button>';
-  
-  var start=Math.max(1,state.page-2), end=Math.min(total,state.page+2);
-  if(start>1) html+='<button class="page-btn" data-p="1">1</button>'+(start>2?'<span style="color:var(--muted)">…</span>':'');
-  for(var i=start;i<=end;i++){
-    html+='<button class="page-btn'+(i===state.page?' active':'')+'" data-p="'+i+'">'+i+'</button>';
-  }
-  if(end<total) html+=(end<total-1?'<span style="color:var(--muted)">…</span>':'')+'<button class="page-btn" data-p="'+total+'">'+total+'</button>';
-  html+='<button class="page-btn"'+(state.page===total?' disabled':'')+' data-p="'+(state.page+1)+'">Sig →</button>';
-  
-  $('pagination').innerHTML=html;
-  $('pagination').querySelectorAll('.page-btn:not([disabled])').forEach(function(el){
-    el.addEventListener('click', function(){
-      state.page=parseInt(this.dataset.p); renderPage(); renderPagination();
-      window.scrollTo({top:64,behavior:'smooth'});
-    });
-  });
-}
-
-/* ── MODAL ── */
-var SIZES=['XS','S','M','L','XL','2XL','3XL'];
-function openModal(id){
-  var p=state.products.find(function(x){return x.id===id;});
-  if(!p) return;
-  state.modalProduct=p; state.modalSize=null; state.modalQty=1;
-  var mi=$('modal-img');mi.src='';mi.referrerPolicy='unsafe-url';mi.src=p.image||p.thumb||'';
-  $('modal-name').textContent=p.name||'';
-  $('modal-cat').textContent=p.category||'';
-  $('modal-price').textContent=p.price?'$'+p.price:'Consultar precio';
-  $('modal-price').style.color=p.price?'var(--accent)':'var(--muted)';
-  $('modal-desc').textContent=p.description||'';
-  $('modal-desc').style.display=p.description?'':'none';
-  $('qty-val').textContent='1';
-  
-  $('size-grid').innerHTML=SIZES.map(function(s){
-    return '<button class="size-btn" data-size="'+s+'">'+s+'</button>';
-  }).join('');
-  $('size-grid').querySelectorAll('.size-btn').forEach(function(el){
-    el.addEventListener('click', function(){
-      $('size-grid').querySelectorAll('.size-btn').forEach(function(b){b.classList.remove('selected');});
-      this.classList.add('selected');
-      state.modalSize=this.dataset.size;
-    });
-  });
-  
-  $('modal').style.display='flex';
-}
-
-function closeModal(){ $('modal').style.display='none'; }
-
-/* ── CART ── */
-function quickAdd(id){
-  var p=state.products.find(function(x){return x.id===id;});
-  if(!p) return;
-  addToCart(p,'M',1);
-  showToast('✓ '+p.name.slice(0,30)+' agregado');
-}
-
-function addToCart(p, size, qty){
-  var key=p.id+'_'+(size||'M');
-  var existing=state.cart.find(function(x){return x.key===key;});
-  if(existing){ existing.qty+=qty; }
-  else { state.cart.push({key:key,id:p.id,name:p.name,image:p.thumb||p.image||'',
-    category:p.category,price:p.price,size:size||'M',qty:qty}); }
-  saveCart();
-  updateCartBadge();
-}
-
-function updateCartBadge(){
-  var total=state.cart.reduce(function(a,x){return a+x.qty;},0);
-  var badge=$('cart-badge');
-  if(total>0){badge.style.display='flex';badge.textContent=total;}
-  else badge.style.display='none';
-  $('cart-label').textContent=total>0?'('+total+')':'Carrito';
-}
-
-function renderCartPanel(){
-  var list=$('cart-items-list');
-  if(state.cart.length===0){
-    list.innerHTML='<div class="cart-empty">🛒<br>Tu carrito está vacío</div>';
-    $('cart-footer').style.display='none';
-    return;
-  }
-  list.innerHTML=state.cart.map(function(item){
-    return '<div class="cart-item">'
-      +(item.image?'<img src="'+escapeAttr(item.image)+'" alt=""/>':'<div style="width:60px;height:60px;background:var(--surface2);border-radius:8px;flex-shrink:0"></div>')
-      +'<div class="cart-item-info">'
-      +'<div class="cart-item-name">'+escapeHtml(item.name)+'</div>'
-      +'<div class="cart-item-meta">Talla: '+item.size+' · Qty: '+item.qty+'</div>'
-      +(item.price?'<div class="cart-item-price">$'+item.price+' c/u</div>':'')
-      +'</div>'
-      +'<button class="btn-rm" data-key="'+escapeAttr(item.key)+'">🗑</button>'
-      +'</div>';
-  }).join('');
-  
-  list.querySelectorAll('.btn-rm').forEach(function(el){
-    el.addEventListener('click', function(){
-      var key=this.dataset.key;
-      state.cart=state.cart.filter(function(x){return x.key!==key;});
-      saveCart(); updateCartBadge(); renderCartPanel();
-    });
-  });
-  
-  var totalPrice=state.cart.reduce(function(a,x){
-    return a+(parseFloat(x.price)||0)*x.qty;
-  },0);
-  $('cart-total-price').textContent=totalPrice>0?'$'+totalPrice.toFixed(0):'A consultar';
-  $('cart-footer').style.display='block';
-}
-
-function buildWAMessage(){
-  var msg='Hola! Me interesa hacer un pedido:\n\n';
-  state.cart.forEach(function(item){
-    msg+='• '+item.name+'\n';
-    msg+='  Talla: '+item.size+', Cantidad: '+item.qty;
-    if(item.price) msg+=' ($'+item.price+' c/u)';
-    msg+='\n';
-  });
-  msg+='\nQuedo en espera de su confirmación 🙏';
-  return msg;
-}
-
-/* ── EVENTS ── */
+// ─── EVENTS ───────────────────────────────────────────────────────────
 function attachEvents(){
-  // Search
-  $('search-input').addEventListener('input', function(){
-    state.search=this.value; state.page=1; applyFilters();
-  });
-  
-  // Sort
-  $('sort-select').addEventListener('change', function(){
-    state.sort=this.value; state.page=1; applyFilters();
-  });
-  
-  // Cart
-  $('btn-cart-open').addEventListener('click', function(){
-    renderCartPanel(); $('cart-panel').classList.add('open');
-  });
-  $('btn-cart-close').addEventListener('click', function(){
-    $('cart-panel').classList.remove('open');
-  });
-  
-  // Modal
+  $('search-input').addEventListener('input', function(){ S.search=this.value; S.page=1; applyFilters(); });
+  $('cat-select').addEventListener('change',  function(){ S.category=this.value; S.page=1; applyFilters(); });
+  $('sort-select').addEventListener('change', function(){ S.sort=this.value; S.page=1; applyFilters(); });
+  $('btn-cart-open').addEventListener('click',  function(){ renderCart(); $('cart-panel').classList.add('open'); });
+  $('btn-cart-close').addEventListener('click', function(){ $('cart-panel').classList.remove('open'); });
   $('modal-close').addEventListener('click', closeModal);
-  $('modal').addEventListener('click', function(e){ if(e.target===$('modal')) closeModal(); });
-  
-  $('qty-minus').addEventListener('click', function(){
-    if(state.modalQty>1){ state.modalQty--; $('qty-val').textContent=state.modalQty; }
-  });
-  $('qty-plus').addEventListener('click', function(){
-    state.modalQty++; $('qty-val').textContent=state.modalQty;
-  });
-  
+  $('modal').addEventListener('click',       function(e){ if(e.target===$('modal')) closeModal(); });
+  $('qty-minus').addEventListener('click', function(){ if(S.modalQty>1){ S.modalQty--; $('qty-val').textContent=S.modalQty; } });
+  $('qty-plus').addEventListener('click',  function(){ S.modalQty++; $('qty-val').textContent=S.modalQty; });
   $('modal-add-btn').addEventListener('click', function(){
-    if(!state.modalProduct) return;
-    addToCart(state.modalProduct, state.modalSize||'M', state.modalQty);
+    if(!S.modalProduct) return;
+    addToCart(S.modalProduct, S.modalSize||'M', S.modalQty);
     showToast('✓ Agregado al carrito');
     closeModal();
   });
-  
-  // WhatsApp
-  $('btn-whatsapp').addEventListener('click', function(){
-    if(state.cart.length===0) return;
-    var msg=buildWAMessage();
-    window.open('https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
-  });
-  
-  // Logout
-  $('btn-logout').addEventListener('click', function(){
-    try{ localStorage.removeItem('js_user'); }catch(e){}
-    location.reload();
-  });
+  $('btn-whatsapp').addEventListener('click', sendWA);
+  $('btn-logout').addEventListener('click', doLogout);
+  $('user-avatar').addEventListener('click', doLogout);
 }
 
-/* ── ESCAPE ── */
-function escapeHtml(s){
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escapeAttr(s){
-  return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// ─── CATALOG ──────────────────────────────────────────────────────────
+function initCatalog(){
+  var seed = window.CATALOG_SEED||[];
+  S.products = seed.map(function(p,i){
+    return {
+      id:    p.id||i+1,
+      name:  p.name||p.n||'Jersey',
+      image: p.image||p.img||'',
+      thumb: p.image_thumb||p.thumb||p.image||p.img||'',
+      price: p.price||p.precio||'$350 MXN',
+      cat:   p.category||p.cat||p.categoria||'',
+      sizes: p.sizes||p.tallas||['S','M','L','XL','2XL'],
+    };
+  });
+  applyFilters();
 }
 
-/* ── INIT ── */
-initLogin();
+function applyFilters(){
+  var prods = S.products.slice();
+  if(S.category !== 'all'){
+    prods = prods.filter(function(p){ return p.cat===S.category; });
+  }
+  if(S.search){
+    var q = S.search.toLowerCase();
+    prods = prods.filter(function(p){ return p.name.toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q); });
+  }
+  if(S.sort==='az') prods.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  if(S.sort==='za') prods.sort(function(a,b){ return b.name.localeCompare(a.name); });
+  S.filtered = prods;
+  S.page = Math.min(S.page, Math.max(1, Math.ceil(prods.length/ITEMS_PER_PAGE)));
+  renderGrid();
+  renderPagination();
+}
+
+function renderGrid(){
+  var start = (S.page-1)*ITEMS_PER_PAGE;
+  var page  = S.filtered.slice(start, start+ITEMS_PER_PAGE);
+  var grid  = $('catalog-grid');
+  if(!page.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">No se encontraron jerseys</div>';
+    return;
+  }
+  grid.innerHTML = page.map(function(p){
+    var b = BADGE_MAP[p.cat]||{bg:'#222',color:'#aaa'};
+    return '<div class="card" onclick="openModal('+p.id+')">'+
+      '<img class="card-img" src="'+esc(p.thumb||p.image)+'" alt="'+esc(p.name)+'" loading="lazy"'+
+      ' onerror="this.src=\\'data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'160\\' height=\\'160\\'><rect width=\\'160\\' height=\\'160\\' fill=\\'%231e1e28\\'/>'+
+      '<text x=\\'80\\' y=\\'85\\' text-anchor=\\'middle\\' font-size=\\'32\\'>⚽</text></svg>\\'" />'+
+      '<div class="card-body">'+
+      (p.cat?'<span class="card-badge" style="background:'+b.bg+';color:'+b.color+'">'+esc(p.cat)+'</span>':'')+'<br>'+
+      '<div class="card-name">'+esc(p.name)+'</div>'+
+      '<div class="card-price">'+esc(p.price)+'</div>'+
+      '</div></div>';
+  }).join('');
+}
+
+function renderPagination(){
+  var total = Math.ceil(S.filtered.length/ITEMS_PER_PAGE);
+  if(total<=1){ $('pagination').innerHTML=''; return; }
+  var pages=[];
+  // Siempre mostrar primera, última y entorno a la actual
+  var show=new Set([1,total]);
+  for(var i=Math.max(1,S.page-2);i<=Math.min(total,S.page+2);i++) show.add(i);
+  var sorted=Array.from(show).sort(function(a,b){return a-b;});
+  var html='';
+  var prev=-1;
+  for(var j=0;j<sorted.length;j++){
+    var n=sorted[j];
+    if(prev>0 && n-prev>1) html+='<span style="color:var(--muted);padding:8px">…</span>';
+    html+='<button class="page-btn'+(n===S.page?' active':'')+'" onclick="gotoPage('+n+')">'+n+'</button>';
+    prev=n;
+  }
+  $('pagination').innerHTML=html;
+}
+
+function gotoPage(n){ S.page=n; renderGrid(); renderPagination(); window.scrollTo(0,0); }
+
+// ─── MODAL ────────────────────────────────────────────────────────────
+function openModal(id){
+  var p = S.products.find(function(x){ return x.id===id; });
+  if(!p) return;
+  S.modalProduct=p; S.modalSize='M'; S.modalQty=1;
+  $('modal-img').src   = p.image||p.thumb||'';
+  $('modal-name').textContent  = p.name;
+  $('modal-price').textContent = p.price;
+  $('modal-cat').textContent   = p.cat||'';
+  $('qty-val').textContent = '1';
+  var sizes = p.sizes||['S','M','L','XL','2XL'];
+  $('modal-sizes').innerHTML = sizes.map(function(s){
+    return '<button class="size-btn'+(s==='M'?' sel':'')+'" onclick="selSize(this,\''+s+'\')">'+s+'</button>';
+  }).join('');
+  $('modal').classList.add('open');
+}
+function selSize(btn,s){
+  S.modalSize=s;
+  document.querySelectorAll('.size-btn').forEach(function(b){ b.classList.remove('sel'); });
+  btn.classList.add('sel');
+}
+function closeModal(){ $('modal').classList.remove('open'); }
+
+// ─── CART ─────────────────────────────────────────────────────────────
+function addToCart(p,size,qty){
+  var key=p.id+'_'+size;
+  var item=S.cart.find(function(x){ return x.key===key; });
+  if(item){ item.qty+=qty; }
+  else{ S.cart.push({key:key,id:p.id,name:p.name,image:p.thumb||p.image,price:p.price,size:size,qty:qty}); }
+  saveCart(); updateCartCount();
+}
+function updateCartCount(){
+  var n=S.cart.reduce(function(a,x){return a+x.qty;},0);
+  $('cart-count').textContent=n;
+}
+function renderCart(){
+  var el=$('cart-items');
+  if(!S.cart.length){ el.innerHTML='<div style="color:var(--muted);text-align:center;padding:30px">Tu carrito está vacío</div>'; $('cart-total').textContent=''; return; }
+  el.innerHTML=S.cart.map(function(item,i){
+    return '<div class="cart-item">'+
+      '<img src="'+esc(item.image)+'" alt="" onerror="this.style.display=\'none\'"/>'+
+      '<div class="cart-item-info">'+
+        '<div class="cart-item-name">'+esc(item.name)+'</div>'+
+        '<div class="cart-item-detail">Talla: '+esc(item.size)+' · Cant: '+item.qty+'</div>'+
+        '<div class="cart-item-price">'+esc(item.price)+'</div>'+
+      '</div>'+
+      '<button class="btn-remove" onclick="removeItem('+i+')">🗑</button>'+
+    '</div>';
+  }).join('');
+  $('cart-total').textContent='Total: '+S.cart.length+' artículo(s)';
+}
+function removeItem(i){ S.cart.splice(i,1); saveCart(); updateCartCount(); renderCart(); }
+function sendWA(){
+  if(!S.cart.length){ showToast('Tu carrito está vacío'); return; }
+  var msg='Hola! Quiero pedir los siguientes jerseys:\n\n';
+  S.cart.forEach(function(x){ msg+='• '+x.name+' - Talla '+x.size+' x'+x.qty+'\n'; });
+  msg+='\n¿Tienen disponibilidad? 🙏';
+  window.open('https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ─── LOGOUT ───────────────────────────────────────────────────────────
+function doLogout(){
+  S.user=null; S.cart=[];
+  $('app').style.display='none';
+  $('login-screen').style.display='flex';
+  $('l-phone').value=''; $('l-pass').value='';
+  $('login-error').textContent='';
+  showTab('login');
+}
+
+// ─── ADMIN ────────────────────────────────────────────────────────────
+function openAdmin(){
+  var users  = getUsers();
+  var visits = getVisits();
+  var today  = new Date().toDateString();
+  var todayN = visits.filter(function(v){ return new Date(v.ts).toDateString()===today; }).length;
+  $('admin-stats').innerHTML=
+    '<div class="admin-stat"><div class="admin-stat-num">'+users.length+'</div><div class="admin-stat-label">Usuarios</div></div>'+
+    '<div class="admin-stat"><div class="admin-stat-num">'+visits.length+'</div><div class="admin-stat-label">Accesos totales</div></div>'+
+    '<div class="admin-stat"><div class="admin-stat-num">'+todayN+'</div><div class="admin-stat-label">Accesos hoy</div></div>'+
+    '<div class="admin-stat"><div class="admin-stat-num">'+S.products.length+'</div><div class="admin-stat-label">Productos</div></div>';
+
+  var uEl=$('admin-users');
+  if(!users.length){ uEl.innerHTML='<p style="color:var(--muted);padding:12px">Sin usuarios aún</p>'; }
+  else{
+    uEl.innerHTML='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Nombre</th><th>Registro</th><th>Último acceso</th></tr></thead><tbody>'+
+      users.slice().reverse().map(function(u){
+        return '<tr><td>'+esc(u.phone)+'</td><td>'+esc(u.name)+'</td><td>'+
+          (u.createdAt?new Date(u.createdAt).toLocaleDateString('es-MX'):'?')+'</td><td>'+
+          (u.lastLogin?new Date(u.lastLogin).toLocaleDateString('es-MX'):'Nunca')+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  }
+  var vEl=$('admin-visits');
+  var last=visits.slice(-20).reverse();
+  if(!last.length){ vEl.innerHTML='<p style="color:var(--muted);padding:12px">Sin accesos aún</p>'; }
+  else{
+    vEl.innerHTML='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Acción</th><th>Fecha</th></tr></thead><tbody>'+
+      last.map(function(v){
+        return '<tr><td>'+esc(v.phone)+'</td><td>'+esc(v.action)+'</td><td>'+new Date(v.ts).toLocaleString('es-MX')+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  }
+  $('admin-modal').classList.add('open');
+}
+function closeAdmin(){ $('admin-modal').classList.remove('open'); }
+
+// ─── INIT ─────────────────────────────────────────────────────────────
+(function init(){
+  // Restaurar sesión guardada
+  try{
+    var saved = localStorage.getItem('st_session');
+    if(saved){
+      var u = JSON.parse(saved);
+      if(u && u.phone){ startApp(u); return; }
+    }
+  }catch(e){ localStorage.removeItem('st_session'); }
+  // Sin sesión guardada: mostrar login
+})();
 </script>
 
-<!-- DATOS: Cargados al final para que el DOM y JS ya estén listos -->
-
-
-<!-- ADMIN PANEL -->
-<div class="admin-panel" id="admin-panel" style="display:none">
-  <div class="admin-panel-box">
-    <div class="admin-header">
-      <h2>⚙️ Panel de Administrador</h2>
-      <button class="admin-close" onclick="closeAdmin()">✕</button>
-    </div>
-    <div class="admin-body">
-      <div class="admin-stat-grid" id="admin-stats"></div>
-      <div class="admin-tabs">
-        <button class="admin-tab active" onclick="adminTab('users')">👥 Usuarios</button>
-        <button class="admin-tab" onclick="adminTab('visits')">📊 Accesos</button>
-      </div>
-      <div id="admin-tab-users"></div>
-      <div id="admin-tab-visits" style="display:none"></div>
-    </div>
-  </div>
-</div>
+<!-- Datos del catálogo (se cargan después del JS principal) -->
+<script src="catalog.js?v=2" onload="if(window.S&&S.user)initCatalog()"></script>
 </body>
 </html>
