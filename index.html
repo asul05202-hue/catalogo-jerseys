@@ -455,24 +455,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="login-sub" id="login-subtitle">Catálogo exclusivo de jerseys</div>
 
     <form id="login-form" onsubmit="doLogin();return false;" autocomplete="off">
-      <div class="form-group" id="fg-name" style="display:none">
-        <label for="login-name">Nombre completo</label>
-        <input type="text" id="login-name" placeholder="Tu nombre completo" autocomplete="name"/>
-      </div>
       <div class="form-group">
         <label for="login-phone">Número de teléfono</label>
-        <input type="tel" id="login-phone" placeholder="10 dígitos" autocomplete="tel" oninput="checkPhoneExists()" onchange="checkPhoneExists()"/>
+        <input type="tel" id="login-phone" placeholder="Ej: 3343745531" autocomplete="tel"/>
       </div>
       <div class="form-group">
         <label for="login-pass">Contraseña</label>
-        <input type="password" id="login-pass" placeholder="Mínimo 4 caracteres" autocomplete="current-password"/>
+        <input type="password" id="login-pass" placeholder="Tu contraseña" autocomplete="current-password"/>
       </div>
-      <div class="form-group" id="fg-pass2" style="display:none">
-        <label for="login-pass2">Confirmar contraseña</label>
-        <input type="password" id="login-pass2" placeholder="Repite tu contraseña" autocomplete="new-password"/>
+      <div id="fg-name" style="display:none">
+        <input type="text" id="login-name" value=""/>
       </div>
-      <div class="login-error" id="login-error"></div>
-      <button type="submit" class="login-btn" id="login-btn-main">Entrar al catálogo →</button>
+      <div id="fg-pass2" style="display:none">
+        <input type="password" id="login-pass2"/>
+      </div>
+      <div id="login-error" style="color:#e74c3c;font-size:14px;margin-bottom:8px;min-height:20px;"></div>
+      <div id="login-note" style="font-size:13px;color:#888;margin-bottom:12px;">Ingresa tus datos para continuar</div>
+      <button type="submit" id="login-btn-main" class="btn-primary" style="width:100%">Entrar al catálogo →</button>
     </form>
     <div class="login-note" id="login-note">Ingresa tu teléfono para continuar</div>
     <div style="margin-top:12px;text-align:center"><a href="#" onclick="resetMyAccount();return false" style="color:rgba(255,255,255,.35);font-size:11px;text-decoration:none">¿Problemas para entrar? Restablecer cuenta</a></div>
@@ -891,109 +890,66 @@ function saveCategories(cats) {
 // ═══════════════════════════════════════════════════════
 let _loginIsNew = false; // true = primer registro
 
-function checkPhoneExists() {
-  const phone = document.getElementById('login-phone').value.trim().replace(/\D/g,'');
-  const errEl = document.getElementById('login-error');
-  errEl.textContent = '';
-  if (phone.length < 7) {
-    document.getElementById('fg-name').style.display = 'none';
-    document.getElementById('fg-pass2').style.display = 'none';
-    document.getElementById('login-note').textContent = 'Ingresa tu teléfono para continuar';
-    document.getElementById('login-btn-main').textContent = 'Entrar al catálogo →';
-    return;
-  }
-  const isAdmin = (phone === ADMIN_PHONE);
-  if (isAdmin) {
-    // Admin: solo contraseña, sin nombre ni confirmar
-    document.getElementById('fg-name').style.display = 'none';
-    document.getElementById('fg-pass2').style.display = 'none';
-    document.getElementById('login-note').textContent = 'Panel de administrador';
-    document.getElementById('login-btn-main').textContent = 'Entrar →';
-    document.getElementById('login-pass').focus();
-    return;
-  }
-  const users = loadUsers();
-  const existing = users.find(u => u.phone === phone);
-  if (existing) {
-    document.getElementById('fg-name').style.display = 'none';
-    document.getElementById('fg-pass2').style.display = 'none';
-    document.getElementById('login-note').textContent = 'Bienvenido de vuelta, ' + existing.name.split(' ')[0] + ' 👋';
-    document.getElementById('login-btn-main').textContent = 'Entrar →';
-    document.getElementById('login-pass').focus();
-  } else {
-    document.getElementById('fg-name').style.display = '';
-    document.getElementById('fg-pass2').style.display = '';
-    document.getElementById('login-note').textContent = 'Crea tu contraseña para acceder';
-    document.getElementById('login-btn-main').textContent = 'Crear cuenta →';
-  }
-}
 
 function doLogin() {
-  const nameEl  = document.getElementById('login-name');
-  const phoneEl = document.getElementById('login-phone');
-  const passEl  = document.getElementById('login-pass');
-  const pass2El = document.getElementById('login-pass2');
-  const errEl   = document.getElementById('login-error');
-  const phone   = phoneEl.value.trim().replace(/\D/g,'');
+  var phone = document.getElementById('login-phone').value.trim().replace(/\D/g,'');
+  var pass  = document.getElementById('login-pass').value.trim();
+  var errEl = document.getElementById('login-error');
   errEl.textContent = '';
 
-  if (!phone || phone.length < 7) { errEl.textContent = 'Número de teléfono no válido.'; phoneEl.focus(); return; }
+  if (!phone || phone.length < 7) {
+    errEl.textContent = 'Ingresa tu número de teléfono.';
+    return;
+  }
+  if (!pass || pass.length < 3) {
+    errEl.textContent = 'Ingresa tu contraseña.';
+    return;
+  }
 
-  const pass = passEl.value;
-  if (!pass || pass.length < 4) { errEl.textContent = 'La contraseña debe tener al menos 4 caracteres.'; passEl.focus(); return; }
-
-  // ── Admin: camino propio, sin validar nombre ──
+  // ── ADMIN ──
   if (phone === ADMIN_PHONE) {
-    if (pass !== ADMIN_PASS) { errEl.textContent = 'Contraseña incorrecta.'; passEl.value=''; passEl.focus(); return; }
-    const users = loadUsers();
-    let adm = users.find(u => u.phone === phone);
+    if (pass !== ADMIN_PASS) {
+      errEl.textContent = 'Contraseña incorrecta.';
+      return;
+    }
+    var users = loadUsers();
+    var adm = users.find(function(u){ return u.phone === phone; });
     if (!adm) {
-      adm = { id:Date.now(), name:ADMIN_NAME, phone, passHash:btoa(pass), datetime:new Date().toISOString(), lastLogin:new Date().toISOString(), logins:1 };
+      adm = { id: Date.now(), name: ADMIN_NAME, phone: phone, passHash: btoa(pass), datetime: new Date().toISOString(), lastLogin: new Date().toISOString(), logins: 1 };
       users.unshift(adm);
     } else {
       adm.lastLogin = new Date().toISOString();
-      adm.logins = (adm.logins||0)+1;
+      adm.logins = (adm.logins || 0) + 1;
     }
     saveUsers(users);
     finishLogin(adm);
     return;
   }
 
-  const users = loadUsers();
-  const existing = users.find(u => u.phone === phone);
-
+  // ── USUARIO EXISTENTE ──
+  var users = loadUsers();
+  var existing = users.find(function(u){ return u.phone === phone; });
   if (existing) {
-    // Usuario existente — verificar contraseña
-    if (existing.passHash) {
-      if (existing.passHash !== btoa(pass)) {
-        errEl.textContent = 'Contraseña incorrecta.'; passEl.value=''; passEl.focus(); return;
-      }
-    } else {
-      existing.passHash = btoa(pass); // cuenta vieja sin contraseña
+    if (existing.passHash && existing.passHash !== btoa(pass)) {
+      errEl.textContent = 'Contraseña incorrecta.';
+      return;
     }
     existing.lastLogin = new Date().toISOString();
-    existing.logins = (existing.logins||0)+1;
+    existing.logins = (existing.logins || 0) + 1;
     saveUsers(users);
     finishLogin(existing);
-  } else {
-    // Usuario nuevo — necesita nombre
-    const name = nameEl.value.trim();
-    if (!name || name.length < 2) {
-      // Mostrar campo de nombre si estaba oculto y pedir que lo llene
-      document.getElementById('fg-name').style.display = '';
-      document.getElementById('fg-pass2').style.display = '';
-      errEl.textContent = 'Ingresa tu nombre completo.'; nameEl.focus(); return;
-    }
-    const pass2 = pass2El.value;
-    // Si fg-pass2 está oculto (oninput no corrió), permitir sin confirmación
-    const pass2Hidden = document.getElementById('fg-pass2').style.display === 'none';
-    if (!pass2Hidden && pass !== pass2) { errEl.textContent = 'Las contraseñas no coinciden.'; pass2El.focus(); return; }
-    const user = { id:Date.now(), name, phone, passHash:btoa(pass), datetime:new Date().toISOString(), lastLogin:new Date().toISOString(), logins:1 };
-    users.unshift(user);
-    saveUsers(users);
-    finishLogin(user);
+    return;
   }
+
+  // ── USUARIO NUEVO ──
+  var name = document.getElementById('login-name').value.trim();
+  if (!name) name = 'Cliente ' + phone.slice(-4);
+  var newUser = { id: Date.now(), name: name, phone: phone, passHash: btoa(pass), datetime: new Date().toISOString(), lastLogin: new Date().toISOString(), logins: 1 };
+  users.push(newUser);
+  saveUsers(users);
+  finishLogin(newUser);
 }
+
 
 function resetMyAccount() {
   const phoneEl = document.getElementById('login-phone');
