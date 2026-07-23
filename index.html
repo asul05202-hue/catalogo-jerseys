@@ -708,7 +708,8 @@ function renderCard(p){
   var img=p.thumb||p.image||'';
   return '<div class="product-card" data-id="'+p.id+'">'
     +'<div class="card-img-wrap">'
-    +(img?'<img src="'+escapeAttr(img)+'" alt="'+escapeAttr(p.name)+'" loading="lazy" onerror="this.style.display=\'none\'"/>':'')
+    +'<div class="card-img-placeholder">👕<span>'+escapeHtml(p.category||'')+ '</span></div>'
+    +(img?'<img src="'+escapeAttr(img)+'" alt="'+escapeAttr(p.name)+'" loading="lazy" onload="this.classList.add(\'img-ok\')" onerror="this.remove()"/>':'')
     +'<div class="card-category">'+escapeHtml(p.category||'')+'</div>'
     +'</div>'
     +'<div class="card-body">'
