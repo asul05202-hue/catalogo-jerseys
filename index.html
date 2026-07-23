@@ -602,8 +602,10 @@ function initLogin(){
       var u=JSON.parse(saved);
       if(u&&u.phone){
         try{ startApp(u); return; }catch(err){
-          // Sesión corrupta - limpiar y mostrar login
+          // Sesión corrupta - limpiar y restaurar pantalla de login
           localStorage.removeItem('js_user');
+          try{ $('login-screen').style.display=''; }catch(e2){}
+          try{ $('app').style.display='none'; }catch(e2){}
         }
       }
     }
