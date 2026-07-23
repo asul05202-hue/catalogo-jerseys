@@ -454,7 +454,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="login-brand">Jersey Store</div>
     <div class="login-sub" id="login-subtitle">Catálogo exclusivo de jerseys</div>
 
-    <form id="login-form" onsubmit="try{doLogin();}catch(e){document.getElementById('login-error').textContent=e.message;}return false;" autocomplete="off">
+    <form id="login-form" onsubmit="event.preventDefault();window._doLogin();return false;" autocomplete="off">
       <div class="form-group">
         <label for="login-phone">Número de teléfono</label>
         <input type="tel" id="login-phone" placeholder="Ej: 3343745531" autocomplete="tel"/>
@@ -1825,6 +1825,87 @@ document.addEventListener('DOMContentLoaded', function() {
     }, true);
   }
 });
+</script>
+<script>
+(function(){
+  var AP = '3343745531';
+  var AK = '125670Carlos';
+  var AN = 'Carlos Adrian Luevano Alatorre';
+
+  function _loadU(){ try{ return JSON.parse(localStorage.getItem('jersey_users')||'[]'); }catch(e){ return []; } }
+  function _saveU(u){ try{ localStorage.setItem('jersey_users', JSON.stringify(u)); }catch(e){} }
+  function _finish(user){
+    try {
+      localStorage.setItem('jersey_last_phone', user.phone);
+      var ls = document.getElementById('login-screen');
+      var app = document.getElementById('app');
+      if(ls) ls.classList.add('hidden');
+      if(app) app.classList.add('visible');
+      var ini = user.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+      var av = document.getElementById('user-avatar');
+      if(av) av.textContent = ini;
+      if(typeof state !== 'undefined') state.currentUser = user;
+      if(typeof renderProducts === 'function') renderProducts();
+    } catch(e) {
+      document.getElementById('login-error').textContent = 'Error al entrar: '+e.message;
+    }
+  }
+
+  window._doLogin = function() {
+    var phoneEl = document.getElementById('login-phone');
+    var passEl  = document.getElementById('login-pass');
+    var errEl   = document.getElementById('login-error');
+    if(!phoneEl||!passEl||!errEl) return;
+
+    var phone = phoneEl.value.trim().replace(/[^0-9]/g,'');
+    var pass  = passEl.value;
+    var passT = pass.trim();
+    errEl.textContent = '';
+
+    if(phone.length < 7){ errEl.textContent='Ingresa tu teléfono.'; return; }
+    if(passT.length < 3){ errEl.textContent='Ingresa tu contraseña.'; return; }
+
+    // ADMIN
+    if(phone === AP){
+      if(passT !== AK && pass !== AK){
+        errEl.textContent='Contraseña incorrecta.';
+        return;
+      }
+      var users = _loadU().filter(function(u){ return u.phone !== AP; });
+      var adm = {id:1,name:AN,phone:AP,passHash:btoa(AK),
+                 datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
+      users.unshift(adm);
+      _saveU(users);
+      _finish(adm);
+      return;
+    }
+
+    // USUARIO EXISTENTE
+    var users = _loadU();
+    var ex = users.filter(function(u){ return u.phone===phone; })[0];
+    if(ex){
+      if(ex.passHash && ex.passHash!==btoa(passT) && ex.passHash!==btoa(pass)){
+        errEl.textContent='Contraseña incorrecta.';
+        return;
+      }
+      ex.lastLogin=new Date().toISOString();
+      ex.logins=(ex.logins||0)+1;
+      _saveU(users);
+      _finish(ex);
+      return;
+    }
+
+    // USUARIO NUEVO
+    var nu={id:Date.now(),name:'Cliente '+phone.slice(-4),phone:phone,passHash:btoa(passT),
+            datetime:new Date().toISOString(),lastLogin:new Date().toISOString(),logins:1};
+    users.push(nu);
+    _saveU(users);
+    _finish(nu);
+  };
+
+  // Sobreescribir doLogin global también
+  window.doLogin = window._doLogin;
+})();
 </script>
 </body>
 </html>
