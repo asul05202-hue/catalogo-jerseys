@@ -190,10 +190,23 @@ a{color:inherit;text-decoration:none}
 .product-card:hover .card-img-wrap img.img-ok{transform:scale(1.08)}
 .card-category{
   position:absolute;top:10px;left:10px;
-  background:rgba(15,15,19,.85);backdrop-filter:blur(4px);
-  color:var(--muted);font-size:10px;font-weight:600;
-  padding:3px 8px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;
+  backdrop-filter:blur(4px);
+  font-size:10px;font-weight:700;
+  padding:4px 10px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;
+  border:1px solid rgba(255,255,255,.15);
 }
+.cat-liga{background:rgba(0,130,60,.85);color:#7fffb2;}
+.cat-selecciones{background:rgba(0,80,180,.85);color:#a0cfff;}
+.cat-europa{background:rgba(180,120,0,.85);color:#ffe066;}
+.cat-retro{background:rgba(120,40,160,.85);color:#e0aaff;}
+.cat-jugador{background:rgba(230,57,70,.85);color:#ffc0c5;}
+.cat-fan{background:rgba(30,140,180,.85);color:#b0eeff;}
+.cat-femenino{background:rgba(200,50,130,.85);color:#ffb3de;}
+.cat-jacket{background:rgba(60,60,80,.85);color:#c0c0e0;}
+.cat-beisbol{background:rgba(180,80,0,.85);color:#ffd0a0;}
+.cat-anime{background:rgba(0,160,130,.85);color:#a0fff0;}
+.cat-shorts{background:rgba(80,80,200,.85);color:#c0c0ff;}
+.cat-default{background:rgba(15,15,19,.85);color:#aaa;}
 .card-body{padding:14px}
 .card-name{font-size:13px;font-weight:600;line-height:1.4;margin-bottom:8px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -352,6 +365,51 @@ a{color:inherit;text-decoration:none}
 .page-btn:hover{border-color:var(--accent)}
 .page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 .page-btn:disabled{opacity:.4;cursor:default}
+
+/* ── ADMIN PANEL ── */
+.btn-admin{
+  background:linear-gradient(135deg,#e63946,#9b59b6);
+  border:none;border-radius:50px;padding:8px 16px;color:#fff;
+  font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:.2s;
+}
+.btn-admin:hover{opacity:.85}
+.admin-panel{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+.admin-panel-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:800px;max-height:90vh;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.admin-header{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.admin-header h2{margin:0;font-size:18px;color:var(--accent);}
+.admin-close{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;}
+.admin-body{overflow-y:auto;padding:20px 24px;flex:1;}
+.admin-tabs{display:flex;gap:8px;margin-bottom:20px;}
+.admin-tab{
+  padding:8px 18px;border-radius:50px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--muted);cursor:pointer;font-size:13px;transition:.15s;
+}
+.admin-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px;}
+.admin-table th{
+  text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);
+  color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.5px;
+}
+.admin-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);}
+.admin-table tr:hover td{background:var(--surface2);}
+.admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.admin-stat{
+  background:var(--surface2);border-radius:12px;padding:16px;text-align:center;
+}
+.admin-stat-num{font-size:28px;font-weight:800;color:var(--accent);}
+.admin-stat-label{font-size:12px;color:var(--muted);margin-top:4px;}
+.badge-online{display:inline-block;width:8px;height:8px;background:#2ecc71;border-radius:50%;margin-right:6px;}
 </style>
 </head>
 <body>
@@ -399,7 +457,7 @@ a{color:inherit;text-decoration:none}
       </svg>
       <input id="search-input" type="search" placeholder="Buscar jerseys..."/>
     </div>
-    <div class="nav-right">
+    <div class="nav-right" id="nav-right">
       <div class="user-avatar" id="user-avatar">?</div>
       <button class="btn-cart" id="btn-cart-open">
         🛒 <span id="cart-label">Carrito</span>
@@ -581,6 +639,94 @@ function doLogin(){
   }
 }
 
+
+function getCatClass(cat){
+  var map={
+    'Liga MX':'cat-liga','Selecciones':'cat-selecciones',
+    'Europa - Clubes':'cat-europa','Retro Europa':'cat-retro',
+    'Retro Liga MX':'cat-retro','Retros - Barcelona':'cat-retro',
+    'Versión jugador':'cat-jugador','Versión fan':'cat-fan',
+    'Femenino':'cat-femenino','Sachets / Jackets':'cat-jacket',
+    'Playeras de Béisbol':'cat-beisbol','Anime / Especial':'cat-anime','Shorts':'cat-shorts'
+  };
+  return map[cat]||'cat-default';
+}
+function buildCatBadge(cat){
+  return '<div class="card-category '+getCatClass(cat)+'">'+escapeHtml(cat||'')+'</div>';
+}
+
+/* ── ADMIN ── */
+function openAdmin(){
+  var users=[];
+  try{ users=JSON.parse(localStorage.getItem('js_users')||'[]'); }catch(e){}
+  var visits=[];
+  try{ visits=JSON.parse(localStorage.getItem('js_visits')||'[]'); }catch(e){}
+  
+  // Stats
+  var totalVisits = visits.length;
+  var uniquePhones = [...new Set(visits.map(function(v){return v.phone;}))].length;
+  var today = new Date().toDateString();
+  var todayVisits = visits.filter(function(v){return new Date(v.ts).toDateString()===today;}).length;
+  
+  var statsEl = document.getElementById('admin-stats');
+  if(statsEl) statsEl.innerHTML = 
+    '<div class="admin-stat"><div class="admin-stat-num">'+users.length+'</div><div class="admin-stat-label">Usuarios registrados</div></div>'+
+    '<div class="admin-stat"><div class="admin-stat-num">'+totalVisits+'</div><div class="admin-stat-label">Accesos totales</div></div>'+
+    '<div class="admin-stat"><div class="admin-stat-num">'+todayVisits+'</div><div class="admin-stat-label">Accesos hoy</div></div>'+
+    '<div class="admin-stat"><div class="admin-stat-num">'+state.products.length+'</div><div class="admin-stat-label">Productos</div></div>';
+  
+  // Tabla usuarios
+  var usersEl = document.getElementById('admin-tab-users');
+  if(usersEl){
+    if(users.length===0){
+      usersEl.innerHTML='<p style="color:var(--muted);text-align:center;padding:30px">Sin usuarios registrados aún</p>';
+    } else {
+      var rows = users.slice().reverse().map(function(u){
+        var last = u.lastLogin ? new Date(u.lastLogin).toLocaleString('es-MX') : 'Nunca';
+        var reg = u.createdAt ? new Date(u.createdAt).toLocaleString('es-MX') : '?';
+        return '<tr><td>'+escapeHtml(u.phone||'')+'</td><td>'+escapeHtml(u.name||'-')+'</td><td>'+reg+'</td><td>'+last+'</td></tr>';
+      }).join('');
+      usersEl.innerHTML='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Nombre</th><th>Registrado</th><th>Último acceso</th></tr></thead><tbody>'+rows+'</tbody></table>';
+    }
+  }
+  
+  // Tabla visitas
+  var visitsEl = document.getElementById('admin-tab-visits');
+  if(visitsEl){
+    if(visits.length===0){
+      visitsEl.innerHTML='<p style="color:var(--muted);text-align:center;padding:30px">Sin registros de acceso aún</p>';
+    } else {
+      var vrows = visits.slice().reverse().slice(0,100).map(function(v){
+        var fecha = v.ts ? new Date(v.ts).toLocaleString('es-MX') : '?';
+        return '<tr><td>'+escapeHtml(v.phone||'')+'</td><td>'+fecha+'</td><td>'+escapeHtml(v.action||'login')+'</td></tr>';
+      }).join('');
+      visitsEl.innerHTML='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Fecha/Hora</th><th>Acción</th></tr></thead><tbody>'+vrows+'</tbody></table>';
+    }
+  }
+  
+  document.getElementById('admin-panel').style.display='flex';
+}
+
+function closeAdmin(){
+  document.getElementById('admin-panel').style.display='none';
+}
+
+function adminTab(tab){
+  document.getElementById('admin-tab-users').style.display = tab==='users'?'':'none';
+  document.getElementById('admin-tab-visits').style.display = tab==='visits'?'':'none';
+  document.querySelectorAll('.admin-tab').forEach(function(b){
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(tab));
+  });
+}
+
+function logVisit(phone, action){
+  var visits=[];
+  try{ visits=JSON.parse(localStorage.getItem('js_visits')||'[]'); }catch(e){}
+  visits.push({phone:phone, ts:new Date().toISOString(), action:action||'login'});
+  if(visits.length>500) visits=visits.slice(-500);
+  try{ localStorage.setItem('js_visits', JSON.stringify(visits)); }catch(e){}
+}
+
 function startApp(user){
   state.user=user;
   $('login-screen').style.display='none';
@@ -590,6 +736,20 @@ function startApp(user){
   var initials=(user.name||'').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase()||user.phone.slice(-2);
   $('user-avatar').textContent=initials;
   $('nav-sub').textContent=user.isAdmin?'⚙ Administrador':'Catálogo 2024-2026';
+  
+  if(user.isAdmin){
+    var navRight=document.getElementById('nav-right');
+    if(navRight){
+      var btnAdmin=document.createElement('button');
+      btnAdmin.className='btn-admin';
+      btnAdmin.innerHTML='⚙️ Admin';
+      btnAdmin.onclick=openAdmin;
+      navRight.insertBefore(btnAdmin,navRight.firstChild);
+    }
+  }
+  
+  // Registrar visita
+  logVisit(user.phone, user.isAdmin?'admin-login':'login');
   
   loadCart();
   initApp();
@@ -711,8 +871,7 @@ function renderCard(p){
     +'<div class="card-img-wrap">'
     +'<div class="card-img-placeholder">👕<span>'+escapeHtml(p.category||'')+ '</span></div>'
     +(img?'<img src="'+escapeAttr(img)+'" alt="'+escapeAttr(p.name)+'" loading="lazy" referrerpolicy="unsafe-url" onload="this.classList.add(\'img-ok\')" onerror="this.remove()"/>':'')
-    +'<div class="card-category">'+escapeHtml(p.category||'')+'</div>'
-    +'</div>'
+    '+buildCatBadge(p.category)
     +'<div class="card-body">'
     +'<div class="card-name">'+escapeHtml(p.name||'')+'</div>'
     +'<div class="'+priceClass+'">'+escapeHtml(price)+'</div>'
@@ -913,5 +1072,24 @@ initLogin();
 
 <!-- DATOS: Cargados al final para que el DOM y JS ya estén listos -->
 
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="admin-panel" style="display:none">
+  <div class="admin-panel-box">
+    <div class="admin-header">
+      <h2>⚙️ Panel de Administrador</h2>
+      <button class="admin-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-stat-grid" id="admin-stats"></div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="adminTab('users')">👥 Usuarios</button>
+        <button class="admin-tab" onclick="adminTab('visits')">📊 Accesos</button>
+      </div>
+      <div id="admin-tab-users"></div>
+      <div id="admin-tab-visits" style="display:none"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
