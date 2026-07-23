@@ -927,7 +927,7 @@ function doLogin() {
   }
 
   // ── USUARIO EXISTENTE ──
-  var users = loadUsers();
+  users = loadUsers();
   var existing = users.find(function(u){ return u.phone === phone; });
   if (existing) {
     if (existing.passHash && existing.passHash !== btoa(pass)) {
