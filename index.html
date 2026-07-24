@@ -478,7 +478,7 @@ function renderGrid(){
     var idx = start+i;
     var img = p.image||p.thumb||'';
     var imgHtml = img
-      ? '<img class="card-img" src="'+esc(img)+'" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">' +
+      ? '<img class="card-img" src="'+esc(img)+'" alt="" loading="lazy" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;">' +
         '<div class="card-ph" style="display:none">⚽</div>'
       : '<div class="card-ph">⚽</div>';
     var price = p.price ? '<div class="card-price">$'+esc(p.price)+'</div>' : '';
@@ -525,7 +525,7 @@ function openModal(idx){
 
   var sizes = ['XS','S','M','L','XL','2XL','3XL'];
   ge('m-sizes').innerHTML = sizes.map(function(sz){
-    return '<div class="sz'+(sz==='M'?' on':'')+'" onclick="selSz(this,''+sz+'')">'+sz+'</div>';
+    return '<div class="sz'+(sz==='M'?' on':'')+'" onclick="selSz(this,&quot;'+sz+'&quot;)">'+sz+'</div>';
   }).join('');
 
   ge('modal').style.display='flex';
@@ -580,13 +580,13 @@ function renderCart(){
   for(var i=0;i<S.cart.length;i++){
     var c=S.cart[i];
     var imgHtml = c.img
-      ? '<img class="cart-img" src="'+esc(c.img)+'" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">' +
+      ? '<img class="cart-img" src="'+esc(c.img)+'" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;">' +
         '<div class="cart-ph" style="display:none">⚽</div>'
       : '<div class="cart-ph">⚽</div>';
     html+='<div class="cart-item">'+imgHtml+
           '<div class="cart-info"><div class="cart-iname">'+esc(c.name)+'</div>'+
           '<div class="cart-imeta">Talla: '+esc(c.sz)+' · Cant: '+c.qty+'</div></div>'+
-          '<button class="cart-rm" onclick="removeFromCart(''+esc(c.key)+'')">✕</button></div>';
+          '<button class="cart-rm" onclick="removeFromCart(&quot;'+esc(c.key)+'&quot;)">✕</button></div>';
   }
   ge('cart-body').innerHTML=html;
 }
