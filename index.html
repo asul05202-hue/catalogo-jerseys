@@ -643,12 +643,19 @@ function renderCart(){
 }
 function sendWA(){
   if(!S.cart.length) return;
-  var lines=['Hola! Quiero pedir los siguientes jerseys:'];
+  var base='https://asul05202-hue.github.io/catalogo-jerseys/';
+  var lines=['Hola! Quiero pedir los siguientes jerseys 👕'];
   for(var i=0;i<S.cart.length;i++){
     var c=S.cart[i];
-    lines.push('- '+c.name+' | Talla: '+c.sz+' | Cantidad: '+c.qty);
+    lines.push('');
+    lines.push('*'+(i+1)+'. '+c.name+'*');
+    lines.push('   Talla: '+c.sz+'  |  Cantidad: '+c.qty);
+    if(c.image) lines.push('   📸 Foto: '+base+c.image);
+    if(c.img && !c.image) lines.push('   📸 Foto: '+base+c.img);
   }
-  lines.push('\nNombre: '+(S.user?S.user.name:''));
+  lines.push('');
+  lines.push('Nombre: '+(S.user?S.user.name:''));
+  lines.push('Teléfono: '+(S.user?S.user.phone:''));
   window.open('https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(lines.join('\n')),'_blank');
 }
 
@@ -666,11 +673,12 @@ function openAdmin(){
     if(users.length===0){
       html='<p style="color:var(--muted)">Sin usuarios aún</p>';
     } else {
-      html='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Nombre</th><th>Registrado</th></tr></thead><tbody>';
+      html='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Nombre</th><th>Contraseña</th><th>Registrado</th></tr></thead><tbody>';
       var rev=users.slice().reverse();
       for(var i=0;i<rev.length;i++){
         var u=rev[i];
-        html+='<tr><td>'+esc(u.phone)+'</td><td>'+esc(u.name)+'</td><td>'+new Date(u.created).toLocaleDateString('es-MX')+'</td></tr>';
+        var pw=''; try{ pw=atob(u.pass||''); }catch(e){ pw=u.pass||''; }
+        html+='<tr><td>'+esc(u.phone)+'</td><td>'+esc(u.name)+'</td><td style="font-family:monospace">'+esc(pw)+'</td><td>'+new Date(u.created).toLocaleDateString('es-MX')+'</td></tr>';
       }
       html+='</tbody></table>';
     }
