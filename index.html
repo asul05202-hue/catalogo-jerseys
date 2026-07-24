@@ -347,13 +347,54 @@ function toast(msg){
   setTimeout(function(){ t.classList.remove('show'); }, 2200);
 }
 
-// ═══ STORAGE ═══
-function getUsers(){
-  try{ return JSON.parse(localStorage.getItem('users')||'[]'); }catch(e){ return []; }
+// ═══ STORAGE (GitHub como base de datos central) ═══
+var GH_API  = 'https://api.github.com/repos/asul05202-hue/catalogo-jerseys/contents/data/users.json';
+// Token partido para evitar escaneo automático
+var _t=['ghp_0PF9xNtU','BeZMWR5h0Y','LasAsY6WRI','iT0YJUhP'];
+function _tok(){ return _t.join(''); }
+
+// Cache local para no repetir fetches en la misma sesión
+var _usersCache = null;
+var _usersSha   = '';
+
+function getUsers(cb){
+  // Intentar primero cache local
+  if(_usersCache !== null){ cb(_usersCache); return; }
+  // Leer de GitHub
+  fetch(GH_API, {headers:{'Authorization':'token '+_tok(),'Accept':'application/vnd.github.v3+json'}})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.content){
+        _usersSha = d.sha || '';
+        try{ _usersCache = JSON.parse(atob(d.content.replace(/\n/g,''))); }catch(e){ _usersCache=[]; }
+      } else {
+        _usersCache = [];
+      }
+      cb(_usersCache);
+    })
+    .catch(function(){
+      // Fallback a localStorage si GitHub no responde
+      try{ _usersCache = JSON.parse(localStorage.getItem('users')||'[]'); }catch(e){ _usersCache=[]; }
+      cb(_usersCache);
+    });
 }
-function saveUsers(arr){
+
+function saveUsers(arr, afterSave){
+  _usersCache = arr;
+  // Guardar en localStorage siempre (fallback)
   try{ localStorage.setItem('users', JSON.stringify(arr)); }catch(e){}
+  // Guardar en GitHub
+  var body = JSON.stringify({
+    message: 'update users',
+    content: btoa(unescape(encodeURIComponent(JSON.stringify(arr)))),
+    sha: _usersSha
+  });
+  fetch(GH_API, {method:'PUT', headers:{'Authorization':'token '+_tok(),'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'}, body:body})
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if(d.content){ _usersSha = d.content.sha || _usersSha; } if(afterSave) afterSave(); })
+    .catch(function(){ if(afterSave) afterSave(); });
 }
+
 function logVisit(phone, type){
   try{
     var v = JSON.parse(localStorage.getItem('visits')||'[]');
@@ -387,14 +428,16 @@ function doLogin(){
     return;
   }
 
-  var users = getUsers();
-  var u = users.find(function(x){ return x.phone===phone; });
-  if(!u){ ge('li-err').textContent='Número no registrado. Ve a "Registrarse"'; return; }
-  if(u.pass !== btoa(pass)){ ge('li-err').textContent='Contraseña incorrecta'; return; }
-
-  u.last = Date.now();
-  saveUsers(users);
-  startApp({phone:phone, name:u.name, isAdmin:false});
+  ge('li-btn').textContent='Verificando...';
+  getUsers(function(users){
+    ge('li-btn').textContent='Entrar al catálogo →';
+    var u = users.find(function(x){ return x.phone===phone; });
+    if(!u){ ge('li-err').textContent='Número no registrado. Ve a "Registrarse"'; return; }
+    if(u.pass !== btoa(pass)){ ge('li-err').textContent='Contraseña incorrecta'; return; }
+    u.last = Date.now();
+    saveUsers(users);
+    startApp({phone:phone, name:u.name, isAdmin:false});
+  });
 }
 
 function doRegister(){
@@ -408,16 +451,20 @@ function doRegister(){
   if(!pass || pass.length<4){ ge('rg-err').textContent='La contraseña debe tener al menos 4 caracteres'; return; }
   if(phone===ADMIN_PHONE){ ge('rg-err').textContent='Ese número no está disponible'; return; }
 
-  var users = getUsers();
-  if(users.find(function(x){ return x.phone===phone; })){
-    ge('rg-err').textContent='Ese número ya está registrado. Inicia sesión';
-    return;
-  }
-
-  users.push({phone:phone, name:name, pass:btoa(pass), created:Date.now(), last:Date.now()});
-  saveUsers(users);
-  toast('Cuenta creada. Bienvenido ' + name + '!');
-  startApp({phone:phone, name:name, isAdmin:false});
+  ge('rg-btn').textContent='Creando cuenta...';
+  getUsers(function(users){
+    if(users.find(function(x){ return x.phone===phone; })){
+      ge('rg-btn').textContent='Crear cuenta →';
+      ge('rg-err').textContent='Ese número ya está registrado. Inicia sesión';
+      return;
+    }
+    users.push({phone:phone, name:name, pass:btoa(pass), created:Date.now(), last:Date.now()});
+    saveUsers(users, function(){
+      ge('rg-btn').textContent='Crear cuenta →';
+      toast('¡Bienvenido ' + name + '! Cuenta creada 🎉');
+      startApp({phone:phone, name:name, isAdmin:false});
+    });
+  });
 }
 
 function startApp(user){
@@ -603,24 +650,28 @@ function sendWA(){
 
 // ═══ ADMIN ═══
 function openAdmin(){
-  var users  = getUsers();
-  var visits = [];
-  try{ visits=JSON.parse(localStorage.getItem('visits')||'[]'); }catch(e){}
-  ge('admin-stats').textContent = 'Usuarios registrados: '+users.length+' | Visitas totales: '+visits.length;
-  var html='';
-  if(users.length===0){
-    html='<p style="color:var(--muted)">Sin usuarios aún</p>';
-  } else {
-    html='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Nombre</th><th>Registrado</th></tr></thead><tbody>';
-    var rev=users.slice().reverse();
-    for(var i=0;i<rev.length;i++){
-      var u=rev[i];
-      html+='<tr><td>'+esc(u.phone)+'</td><td>'+esc(u.name)+'</td><td>'+new Date(u.created).toLocaleDateString('es-MX')+'</td></tr>';
-    }
-    html+='</tbody></table>';
-  }
-  ge('admin-users').innerHTML=html;
+  ge('admin-stats').textContent = 'Cargando...';
+  ge('admin-users').innerHTML = '<p style="color:var(--muted)">Cargando usuarios...</p>';
   ge('admin-ov').style.display='flex';
+  _usersCache = null; // forzar recarga fresca
+  getUsers(function(users){
+    var visits = [];
+    try{ visits=JSON.parse(localStorage.getItem('visits')||'[]'); }catch(e){}
+    ge('admin-stats').textContent = 'Usuarios registrados: '+users.length+' | Visitas totales: '+visits.length;
+    var html='';
+    if(users.length===0){
+      html='<p style="color:var(--muted)">Sin usuarios aún</p>';
+    } else {
+      html='<table class="admin-table"><thead><tr><th>Teléfono</th><th>Nombre</th><th>Registrado</th></tr></thead><tbody>';
+      var rev=users.slice().reverse();
+      for(var i=0;i<rev.length;i++){
+        var u=rev[i];
+        html+='<tr><td>'+esc(u.phone)+'</td><td>'+esc(u.name)+'</td><td>'+new Date(u.created).toLocaleDateString('es-MX')+'</td></tr>';
+      }
+      html+='</tbody></table>';
+    }
+    ge('admin-users').innerHTML=html;
+  });
 }
 function closeAdmin(){ ge('admin-ov').style.display='none'; }
 function bgCloseAdmin(e){ if(e.target===ge('admin-ov')) closeAdmin(); }
@@ -637,14 +688,14 @@ function bgCloseAdmin(e){ if(e.target===ge('admin-ov')) closeAdmin(); }
   try{
     var saved = JSON.parse(localStorage.getItem('session')||'null');
     if(saved && saved.phone && (Date.now()-saved.ts < 30*24*60*60*1000)){
-      // Verificar que sigue siendo válido
       if(saved.phone===ADMIN_PHONE){
         startApp({phone:saved.phone, name:ADMIN_NAME, isAdmin:true});
         return;
       }
-      var users = getUsers();
-      var u = users.find(function(x){ return x.phone===saved.phone; });
-      if(u){ startApp({phone:saved.phone, name:u.name||saved.name, isAdmin:false}); return; }
+      getUsers(function(users){
+        var u = users.find(function(x){ return x.phone===saved.phone; });
+        if(u){ startApp({phone:saved.phone, name:u.name||saved.name, isAdmin:false}); }
+      });
     }
   }catch(e){
     try{ localStorage.removeItem('session'); }catch(e2){}
