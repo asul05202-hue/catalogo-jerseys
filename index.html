@@ -271,6 +271,15 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 <option value="Versión jugador">Versión jugador</option>
 
     </select>
+    <select class="sselect" id="sz-sel" onchange="doSzFilter()">
+      <option value="">Todas las tallas</option>
+      <option value="CH">CH</option>
+      <option value="S">S</option>
+      <option value="M">M</option>
+      <option value="L">L</option>
+      <option value="XL">XL</option>
+      <option value="XXL">XXL</option>
+    </select>
   </div>
 
   <div class="no-res" id="no-res" style="display:none">No se encontraron resultados</div>
@@ -321,8 +330,12 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       <button class="nbtn" onclick="closeAdmin()">✕</button>
     </div>
     <p id="admin-stats" style="color:var(--muted);margin-bottom:16px"></p>
-    <h3 style="margin-bottom:10px">Usuarios registrados</h3>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="nbtn" id="tab-users" onclick="showAdminTab('users')" style="background:var(--accent)">👥 Usuarios</button>
+      <button class="nbtn" id="tab-orders" onclick="showAdminTab('orders')">📦 Pedidos</button>
+    </div>
     <div id="admin-users"></div>
+    <div id="admin-orders" style="display:none"></div>
   </div>
 </div>
 
@@ -501,16 +514,19 @@ function doLogout(){
 function applyFilters(){
   var q   = (ge('search-in').value||'').toLowerCase().trim();
   var cat = (ge('cat-sel').value||'').toLowerCase();
+  var sz  = (ge('sz-sel') ? ge('sz-sel').value||'' : '');
   S.filtered = PRODUCTS.filter(function(p){
     var mc = !cat || (p.category||'').toLowerCase()===cat;
     var mq = !q   || (p.name||'').toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q);
-    return mc && mq;
+    var ms = !sz  || !p.sizes || p.sizes.length===0 || p.sizes.indexOf(sz)!==-1;
+    return mc && mq && ms;
   });
   S.page = 1;
   renderGrid();
 }
 function doSearch(){ S.page=1; applyFilters(); }
 function doCat(){ S.page=1; applyFilters(); }
+function doSzFilter(){ S.page=1; applyFilters(); }
 
 // ═══ GRID ═══
 function renderGrid(){
@@ -650,25 +666,91 @@ function sendWA(){
     lines.push('');
     lines.push('*'+(i+1)+'. '+c.name+'*');
     lines.push('   Talla: '+c.sz+'  |  Cantidad: '+c.qty);
-    if(c.image) lines.push('   📸 Foto: '+base+c.image);
-    if(c.img && !c.image) lines.push('   📸 Foto: '+base+c.img);
+    if(c.img) lines.push('   📸 '+base+c.img);
   }
   lines.push('');
   lines.push('Nombre: '+(S.user?S.user.name:''));
   lines.push('Teléfono: '+(S.user?S.user.phone:''));
-  window.open('https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(lines.join('\n')),'_blank');
+  var msg = lines.join('\n');
+
+  // Guardar pedido en historial
+  saveOrder(msg);
+
+  window.open('https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
+  toast('✅ ¡Pedido enviado!');
+}
+
+// ═══ PEDIDOS ═══
+var GH_ORDERS = 'https://api.github.com/repos/asul05202-hue/catalogo-jerseys/contents/data/orders.json';
+var _ordersCache = null;
+function getOrders(cb){
+  if(_ordersCache){ cb(_ordersCache); return; }
+  fetch(GH_ORDERS, {headers:{Authorization:'token '+_tok(),Accept:'application/vnd.github.v3+json'}}
+  ).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if(d && d.content){
+      try{ _ordersCache=JSON.parse(atob(d.content.replace(/\n/g,''))); }catch(e){ _ordersCache=[]; }
+    } else { _ordersCache=[]; }
+    cb(_ordersCache);
+  }).catch(function(){ _ordersCache=[]; cb([]); });
+}
+function saveOrder(msgText){
+  var order = {
+    id: Date.now(),
+    ts: Date.now(),
+    phone: S.user ? S.user.phone : '',
+    name: S.user ? S.user.name : '',
+    items: S.cart.slice(),
+    msg: msgText
+  };
+  getOrders(function(orders){
+    orders.push(order);
+    _ordersCache = orders;
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
+    // Leer SHA actual
+    fetch(GH_ORDERS, {headers:{Authorization:'token '+_tok(),Accept:'application/vnd.github.v3+json'}}
+    ).then(function(r){ return r.json(); }).then(function(d){
+      var body = {message:'new order '+order.id, content:b64};
+      if(d && d.sha) body.sha = d.sha;
+      fetch(GH_ORDERS, {method:'PUT',headers:{Authorization:'token '+_tok(),Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+    }).catch(function(){});
+  });
 }
 
 // ═══ ADMIN ═══
+function showAdminTab(tab){
+  ge('admin-users').style.display  = tab==='users'  ? '' : 'none';
+  ge('admin-orders').style.display = tab==='orders' ? '' : 'none';
+  ge('tab-users').style.background  = tab==='users'  ? 'var(--accent)' : '';
+  ge('tab-orders').style.background = tab==='orders' ? 'var(--accent)' : '';
+  if(tab==='orders') renderAdminOrders();
+}
+function renderAdminOrders(){
+  ge('admin-orders').innerHTML='<p style="color:var(--muted)">Cargando pedidos...</p>';
+  _ordersCache = null;
+  getOrders(function(orders){
+    if(!orders.length){ ge('admin-orders').innerHTML='<p style="color:var(--muted)">Sin pedidos aún</p>'; return; }
+    var rev=orders.slice().reverse();
+    var html='<table class="admin-table"><thead><tr><th>Fecha</th><th>Cliente</th><th>Teléfono</th><th>Jerseys</th></tr></thead><tbody>';
+    for(var i=0;i<rev.length;i++){
+      var o=rev[i];
+      var items=(o.items||[]).map(function(c){ return c.name+' ('+c.sz+' ×'+c.qty+')'; }).join(', ');
+      html+='<tr><td>'+new Date(o.ts).toLocaleDateString('es-MX')+'</td><td>'+esc(o.name)+'</td><td>'+esc(o.phone)+'</td><td style="font-size:12px">'+esc(items)+'</td></tr>';
+    }
+    html+='</tbody></table>';
+    ge('admin-orders').innerHTML=html;
+    ge('admin-stats').textContent = (ge('admin-stats').textContent||'').replace(/\| Pedidos.*/,'')+' | Pedidos: '+orders.length;
+  });
+}
 function openAdmin(){
   ge('admin-stats').textContent = 'Cargando...';
   ge('admin-users').innerHTML = '<p style="color:var(--muted)">Cargando usuarios...</p>';
+  ge('admin-orders').style.display='none';
   ge('admin-ov').style.display='flex';
-  _usersCache = null; // forzar recarga fresca
+  _usersCache = null;
   getUsers(function(users){
     var visits = [];
     try{ visits=JSON.parse(localStorage.getItem('visits')||'[]'); }catch(e){}
-    ge('admin-stats').textContent = 'Usuarios registrados: '+users.length+' | Visitas totales: '+visits.length;
+    ge('admin-stats').textContent = 'Usuarios: '+users.length+' | Visitas: '+visits.length;
     var html='';
     if(users.length===0){
       html='<p style="color:var(--muted)">Sin usuarios aún</p>';
