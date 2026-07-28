@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Diagnóstico</title>
+<style>
+body{font-family:sans-serif;padding:20px;background:#111;color:#fff;font-size:16px}
+button{width:100%;padding:16px;background:#e63946;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;margin:8px 0}
+#log{background:#1a1a1a;padding:12px;border-radius:8px;font-size:13px;margin-top:12px;white-space:pre-wrap;min-height:80px;line-height:1.6}
+.ok{color:#2ecc71} .err{color:#e63946} .info{color:#aaa}
+</style>
+</head>
+<body>
+<h2>🔍 Diagnóstico Login</h2>
+<button onclick="testBtn()">TAP AQUÍ — Probar botón</button>
+<button onclick="testLogin()">Probar login admin completo</button>
+<div id="log">Esperando...</div>
+<script>
+var L = document.getElementById('log');
+function log(msg, cls) {
+  var span = document.createElement('span');
+  span.className = cls || 'info';
+  span.textContent = '\n' + msg;
+  L.appendChild(span);
+}
+
+window.onerror = function(msg, src, line) {
+  log('❌ JS ERROR: ' + msg + ' (línea ' + line + ')', 'err');
+};
+
+// Test 1: el botón responde
+function testBtn() {
+  L.textContent = '';
+  log('✅ El botón SÍ responde al tap', 'ok');
+  log('Browser: ' + navigator.userAgent.substring(0, 60), 'info');
+  
+  // Test getElementById
+  var el = document.getElementById('log');
+  log('getElementById funciona: ' + (el ? '✅ SÍ' : '❌ NO'), el ? 'ok' : 'err');
+  
+  // Test onclick en botón del catálogo
+  var fakeBtn = document.createElement('button');
+  fakeBtn.id = 'li-btn';
+  fakeBtn.onclick = function(){ log('✅ onclick funciona', 'ok'); };
+  fakeBtn.click();
+  
+  // Test localStorage
+  try {
+    localStorage.setItem('test','1');
+    localStorage.removeItem('test');
+    log('localStorage: ✅ OK', 'ok');
+  } catch(e) {
+    log('localStorage: ❌ ' + e.message, 'err');
+  }
+  
+  // Test fetch
+  log('Probando fetch...', 'info');
+  fetch('data/products.json?test=1')
+    .then(function(r){ log('fetch products.json: HTTP ' + r.status + (r.ok?' ✅':' ❌'), r.ok?'ok':'err'); })
+    .catch(function(e){ log('fetch ERROR: ' + e.message, 'err'); });
+}
+
+// Test 2: login completo simulado
+function testLogin() {
+  L.textContent = '';
+  var ADMIN_PHONE = '3343745531';
+  var ADMIN_PASS  = '125670Carlos';
+  
+  var phone = '3343745531';
+  var pass  = '125670Carlos';
+  
+  var passNorm = pass.toLowerCase().replace(/\s/g,'');
+  var adminPassNorm = ADMIN_PASS.toLowerCase().replace(/\s/g,'');
+  
+  log('phone: [' + phone + ']', 'info');
+  log('pass: [' + pass + ']', 'info');
+  log('phone === ADMIN_PHONE: ' + (phone === ADMIN_PHONE), phone === ADMIN_PHONE ? 'ok' : 'err');
+  log('pass === ADMIN_PASS: ' + (pass === ADMIN_PASS), pass === ADMIN_PASS ? 'ok' : 'err');
+  log('passNorm === adminPassNorm: ' + (passNorm === adminPassNorm), passNorm === adminPassNorm ? 'ok' : 'err');
+  
+  if(phone === ADMIN_PHONE && (passNorm === adminPassNorm || pass === ADMIN_PASS)){
+    log('✅ ADMIN LOGIN CORRECTO — lógica funciona', 'ok');
+  } else {
+    log('❌ Login fallaría con estas credenciales', 'err');
+  }
+  
+  // Simular getElementById del catálogo
+  log('', 'info');
+  log('Probando que los IDs del catálogo existen:', 'info');
+  var ids = ['li-ph','li-pw','li-btn','li-err','pg-login','pg-app'];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    log('  #' + id + ': ' + (el ? '✅ existe' : '⚠️ NO existe (normal, es diagnóstico)'), el ? 'ok' : 'info');
+  });
+}
+
+// Auto-log al cargar
+window.onload = function(){
+  L.textContent = '';
+  log('✅ JS cargado correctamente', 'ok');
+  log('Hora: ' + new Date().toLocaleTimeString(), 'info');
+};
+</script>
+</body>
+</html>

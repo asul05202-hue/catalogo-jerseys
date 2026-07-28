@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Test login</title>
+<style>
+body{font-family:sans-serif;padding:30px;background:#111;color:#fff}
+input{display:block;width:100%;padding:14px;margin:10px 0;font-size:16px;border-radius:8px;border:1px solid #555;background:#222;color:#fff;box-sizing:border-box}
+button{display:block;width:100%;padding:16px;font-size:18px;background:#e63946;color:#fff;border:none;border-radius:10px;cursor:pointer;margin-top:10px}
+#res{margin-top:20px;font-size:18px;padding:14px;background:#1a3a1a;border-radius:8px;display:none}
+</style>
+</head>
+<body>
+<h2>Prueba de botón</h2>
+<input id="ph" type="tel" inputmode="numeric" placeholder="Teléfono"/>
+<input id="pw" type="password" placeholder="Contraseña"/>
+<button id="btn">Tocar aquí →</button>
+<div id="res"></div>
+<script>
+document.getElementById("btn").addEventListener("click", function(){
+  var ph = document.getElementById("ph").value;
+  var pw = document.getElementById("pw").value;
+  var r = document.getElementById("res");
+  r.style.display = "";
+  r.textContent = "✅ Funcionó! Tel: " + ph + " | Pass: " + pw.replace(/./g,"*");
+});
+</script>
+</body>
+</html>

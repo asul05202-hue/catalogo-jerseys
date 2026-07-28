@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Login</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#1a1a2e;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.box{background:rgba(255,255,255,.08);border-radius:20px;padding:40px;width:min(380px,90vw);text-align:center;color:#fff}
+h2{margin:0 0 24px}
+.tabs{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
+.tab{flex:1;padding:10px;border:none;background:transparent;color:rgba(255,255,255,.5);font-size:14px;font-weight:600;border-radius:8px;cursor:pointer;transition:.2s}
+.tab.active{background:#e94560;color:#fff}
+.fg{margin-bottom:14px;text-align:left}
+.fg label{display:block;color:rgba(255,255,255,.7);font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase}
+.fg input{width:100%;padding:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:15px;outline:none;box-sizing:border-box}
+.btn{width:100%;padding:14px;background:#e94560;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+.err{color:#ff6b6b;font-size:13px;margin-top:8px;min-height:18px}
+#result{margin-top:20px;padding:14px;background:rgba(255,255,255,.1);border-radius:8px;display:none;font-size:14px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>⚽ Test Login</h2>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('si')">Iniciar sesión</button>
+    <button class="tab" onclick="switchTab('reg')">Registrarse</button>
+  </div>
+
+  <div id="panel-si">
+    <div class="fg"><label>Teléfono</label><input type="tel" id="si-phone" placeholder="10 dígitos"></div>
+    <div class="fg"><label>Contraseña</label><input type="password" id="si-pass" placeholder="Contraseña"></div>
+    <div class="err" id="si-err"></div>
+    <button class="btn" type="button" onclick="doSignin()">Iniciar sesión →</button>
+  </div>
+
+  <div id="panel-reg" style="display:none">
+    <div class="fg"><label>Nombre</label><input type="text" id="reg-name" placeholder="Tu nombre"></div>
+    <div class="fg"><label>Teléfono</label><input type="tel" id="reg-phone" placeholder="10 dígitos"></div>
+    <div class="fg"><label>Contraseña</label><input type="password" id="reg-pass" placeholder="Mínimo 4 caracteres"></div>
+    <div class="fg"><label>Confirmar</label><input type="password" id="reg-pass2" placeholder="Repite contraseña"></div>
+    <div class="err" id="reg-err"></div>
+    <button class="btn" type="button" onclick="doRegister()">Crear cuenta →</button>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const ADMIN_PHONE = '3343745531';
+const ADMIN_PASS  = '125670Carlos';
+const ADMIN_NAME  = 'Carlos Adrian Luevano Alatorre';
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', (t==='si'&&i===0)||(t==='reg'&&i===1)));
+  document.getElementById('panel-si').style.display  = t==='si'  ? '' : 'none';
+  document.getElementById('panel-reg').style.display = t==='reg' ? '' : 'none';
+}
+
+function loadUsers() {
+  try { return JSON.parse(localStorage.getItem('jersey_users') || '[]'); } catch(e) { return []; }
+}
+function saveUsers(u) { localStorage.setItem('jersey_users', JSON.stringify(u)); }
+
+function showResult(msg) {
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.innerHTML = msg;
+}
+
+function doSignin() {
+  const phone = document.getElementById('si-phone').value.trim().replace(/\D/g,'');
+  const pass  = document.getElementById('si-pass').value;
+  const err   = document.getElementById('si-err');
+  err.textContent = '';
+  if (!phone || phone.length < 7) { err.textContent = 'Teléfono inválido'; return; }
+  if (!pass || pass.length < 4)   { err.textContent = 'Contraseña muy corta'; return; }
+  if (phone === ADMIN_PHONE) {
+    if (pass !== ADMIN_PASS) { err.textContent = 'Contraseña incorrecta'; return; }
+    showResult('✅ <strong>Admin autenticado</strong><br>Bienvenido ' + ADMIN_NAME);
+    return;
+  }
+  const users = loadUsers();
+  const u = users.find(x => x.phone === phone);
+  if (!u) { err.textContent = 'Teléfono no registrado'; return; }
+  if (u.passHash !== btoa(pass)) { err.textContent = 'Contraseña incorrecta'; return; }
+  showResult('✅ <strong>Sesión iniciada</strong><br>Bienvenido ' + u.name);
+}
+
+function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim().replace(/\D/g,'');
+  const pass  = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  const err   = document.getElementById('reg-err');
+  err.textContent = '';
+  if (!name || name.length < 2)   { err.textContent = 'Ingresa tu nombre'; return; }
+  if (!phone || phone.length < 7) { err.textContent = 'Teléfono inválido'; return; }
+  if (!pass || pass.length < 4)   { err.textContent = 'Contraseña muy corta'; return; }
+  if (pass !== pass2)             { err.textContent = 'Las contraseñas no coinciden'; return; }
+  const users = loadUsers();
+  if (users.find(x => x.phone === phone)) { err.textContent = 'Ya registrado, inicia sesión'; switchTab('si'); return; }
+  const u = { id: Date.now(), name, phone, passHash: btoa(pass) };
+  users.unshift(u);
+  saveUsers(users);
+  showResult('✅ <strong>Cuenta creada</strong><br>Bienvenido ' + name);
+}
+</script>
+</body>
+</html>
