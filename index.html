@@ -789,6 +789,7 @@ const CATALOG_SEED = [{"id": 1, "name": "26/27 Betis Local Jugador", "image": "h
 const ADMIN_PASS = '125670Carlos';
 const ADMIN_NAME = 'Carlos Adrian Luevano Alatorre';
 const ADMIN_PHONE = '3343745531';
+const ADMIN_PHONE_OLD = '3343745532';
 const WA_NUMBER = '523343745531'; // WhatsApp del negocio (recibe pedidos)
 
 // ═══════════════════════════════════════════════════════
@@ -912,7 +913,7 @@ function checkPhoneExists() {
     document.getElementById('login-btn-main').textContent = 'Entrar al catálogo →';
     return;
   }
-  const isAdmin = (phone === ADMIN_PHONE);
+  const isAdmin = (phone === ADMIN_PHONE || phone === ADMIN_PHONE_OLD);
   if (isAdmin) {
     // Admin: solo contraseña, sin nombre ni confirmar
     document.getElementById('fg-name').style.display = 'none';
@@ -953,7 +954,7 @@ function doLogin() {
   if (!pass || pass.length < 4) { errEl.textContent = 'La contraseña debe tener al menos 4 caracteres.'; passEl.focus(); return; }
 
   // ── Admin: camino propio, sin validar nombre ──
-  if (phone === ADMIN_PHONE) {
+  if (phone === ADMIN_PHONE || phone === ADMIN_PHONE_OLD) {
     if (pass !== ADMIN_PASS) { errEl.textContent = 'Contraseña incorrecta.'; passEl.value=''; passEl.focus(); return; }
     const users = loadUsers();
     let adm = users.find(u => u.phone === phone);
