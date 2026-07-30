@@ -454,7 +454,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="login-brand">LA Jersey</div>
     <div class="login-sub" id="login-subtitle">Catálogo exclusivo de jerseys</div>
 
-    <form id="login-form" onsubmit="doLogin();return false;" autocomplete="off">
+    <form id="login-form" onsubmit="return false;" autocomplete="off">
       <div class="form-group" id="fg-name">
         <label for="login-name">Nombre completo</label>
         <input type="text" id="login-name" placeholder="Tu nombre completo" autocomplete="name"/>
@@ -472,7 +472,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <input type="password" id="login-pass2" placeholder="Repite tu contraseña" autocomplete="new-password"/>
       </div>
       <div class="login-error" id="login-error"></div>
-      <button type="submit" class="login-btn" id="login-btn-main">Entrar al catálogo →</button>
+      <button type="button" class="login-btn" id="login-btn-main" onclick="doLogin();return false;">Entrar al catálogo →</button>
     </form>
     <div class="login-note" id="login-note">Ingresa tu teléfono para continuar</div>
     <div style="margin-top:12px;text-align:center"><a href="#" onclick="resetMyAccount();return false" style="color:rgba(255,255,255,.35);font-size:11px;text-decoration:none">¿Problemas para entrar? Restablecer cuenta</a></div>
@@ -1031,6 +1031,14 @@ function finishLogin(user) {
   if (isAdmin) { adminBtn.style.display='inline-flex'; _adminUnlocked=true; }
   else { adminBtn.style.display='none'; _adminUnlocked=false; }
 }
+
+// Login robusto: evita que el formulario recargue la página antes de procesar la sesión.
+document.addEventListener('DOMContentLoaded', () => {
+  const loginForm = document.getElementById('login-form');
+  const loginButton = document.getElementById('login-btn-main');
+  if (loginForm) loginForm.addEventListener('submit', (event) => { event.preventDefault(); doLogin(); });
+  if (loginButton) loginButton.addEventListener('click', (event) => { event.preventDefault(); doLogin(); });
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('login-phone').addEventListener('keydown', e => e.key === 'Enter' && doLogin());
