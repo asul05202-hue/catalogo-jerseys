@@ -104,6 +104,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 }
 .header-search input::placeholder{color:rgba(255,255,255,.4)}
 .header-search input:focus{background:rgba(255,255,255,.18);border-color:var(--accent)}
+.header-search input::-webkit-search-cancel-button{display:none}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:25px;height:25px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:20px;line-height:20px;cursor:pointer;padding:0}
+.search-clear:hover{background:var(--accent)}
 .search-icon{
   position:absolute;left:14px;top:50%;transform:translateY(-50%);
   color:rgba(255,255,255,.5);font-size:16px;pointer-events:none;
@@ -489,9 +492,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <img src="la-jersey-logo.jpg" alt="LA Jersey" style="width:42px;height:42px;object-fit:cover;border-radius:8px"/>
       <div><div class="brand-name">LA Jersey</div><div class="brand-sub">Catálogo de ropa deportiva</div></div>
     </a>
-    <div class="header-search">
+    <div class="header-search" role="search">
       <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" placeholder="Buscar jerseys..." oninput="onSearch(this.value)"/>
+      <input type="search" id="search-input" aria-label="Buscar jerseys" placeholder="Buscar equipo, selección o modelo..." autocomplete="off" oninput="onSearch(this.value)"/>
+      <button type="button" class="search-clear" id="search-clear" aria-label="Limpiar búsqueda" onclick="clearSearch()" style="display:none">×</button>
     </div>
     <div class="header-actions">
       <div class="header-user">
@@ -1114,13 +1118,25 @@ function setCategory(cat) {
 // SEARCH & FILTER
 // ═══════════════════════════════════════════════════════
 let searchTimeout;
+function normalizeSearch(value) {
+  return String(value || '').toLocaleLowerCase('es-MX').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
 function onSearch(val) {
   clearTimeout(searchTimeout);
+  const clear = document.getElementById('search-clear');
+  if (clear) clear.style.display = val ? 'block' : 'none';
   searchTimeout = setTimeout(() => {
-    state.searchQuery = val.toLowerCase().trim();
+    state.searchQuery = normalizeSearch(val);
     state.currentPage = 1;
     applyFilters();
-  }, 200);
+  }, 120);
+}
+function clearSearch() {
+  const input = document.getElementById('search-input');
+  if (!input) return;
+  input.value = '';
+  onSearch('');
+  input.focus();
 }
 
 function onSort(val) {
@@ -1139,9 +1155,9 @@ function applyFilters() {
   if (state.searchQuery) {
     const q = state.searchQuery;
     filtered = filtered.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      (p.description||'').toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q)
+      normalizeSearch(p.name).includes(q) ||
+      normalizeSearch(p.description).includes(q) ||
+      normalizeSearch(p.category).includes(q)
     );
   }
 
