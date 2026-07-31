@@ -1418,7 +1418,7 @@ function exportUsers() {
 
 // ── Admin Products ─────────────────────────────────────
 function renderAdminProducts(query) {
-  const catFilter = document.getElementById('prod-cat-filter')?.value || '';
+  const catFilter = (document.getElementById('prod-cat-filter') ? document.getElementById('prod-cat-filter').value : '');
   let prods = state.products;
   if (query) { const q=query.toLowerCase(); prods = prods.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)); }
   if (catFilter) prods = prods.filter(p => p.category === catFilter);
@@ -1512,7 +1512,7 @@ function addProduct() {
 function clearAddForm() {
   ['np-name','np-cat','np-price','np-img','np-desc'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = el.tagName === 'SELECT' ? el.options[0]?.value || '' : '';
+    if (el) el.value = el.tagName === 'SELECT' ? (el.options[0] ? el.options[0].value : '') : '';
   });
 }
 
@@ -1836,7 +1836,7 @@ function closePage(id) {
 // ═══════════════════════════════════════════════════════
 function renderAdminReviews() {
   const all = loadReviews();
-  const q = (document.getElementById('review-admin-search')?.value||'').toLowerCase();
+  const q = (document.getElementById('review-admin-search') ? document.getElementById('review-admin-search').value : '').toLowerCase();
   const prods = state.products;
   let items = [];
   for (const [pid, revs] of Object.entries(all)) {
@@ -1845,7 +1845,7 @@ function renderAdminReviews() {
     revs.forEach((r,idx) => items.push({...r, pname, pid, idx}));
   }
   items.sort((a,b)=>b.ts-a.ts);
-  if (q) items = items.filter(r=>r.pname.toLowerCase().includes(q)||r.author?.toLowerCase().includes(q)||(r.text||'').toLowerCase().includes(q));
+  if (q) items = items.filter(r=>r.pname.toLowerCase().includes(q)||(r.author ? r.author.toLowerCase() : '').includes(q)||(r.text||'').toLowerCase().includes(q));
   const el = document.getElementById('admin-reviews-list');
   if (!items.length) {
     el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted)">Sin reseñas</div>`; return;
