@@ -1364,11 +1364,8 @@ function renderUsersTable(query) {
     const lastStr = lastDt.toLocaleDateString('es-MX', {day:'2-digit',month:'short'}) + ' ' +
       lastDt.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
     const initials = u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    // Decodificar contraseña (guardada como btoa)
-    let passShow = '—';
-    if (u.passHash) {
-      try { passShow = atob(u.passHash); } catch(e) { passShow = '••••'; }
-    }
+    // Nunca mostrar contraseñas: se almacenan protegidas y no se pueden recuperar desde el panel.
+    const passShow = '••••••••';
     const logins = u.logins || 1;
     return `<tr>
       <td style="color:var(--muted)">${i+1}</td>
