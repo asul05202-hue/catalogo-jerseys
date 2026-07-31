@@ -1775,8 +1775,7 @@ function sendCartWA() {
     msg += `${i+1}. ${p.name}`;
     if (p.category) msg += ` [${p.category}]`;
     if (p.price) msg += ` — ${p.price}`;
-    msg += '
-';
+    msg += '\\n';
   });
   msg += `
 _Enviado desde el catálogo_`;
